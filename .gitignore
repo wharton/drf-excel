@@ -1,0 +1,61 @@
+# manage.py, always default to dev settings
+manage.py
+
+# Django media files
+media/*
+
+# Python bytecode:
+*.py[co]
+
+# Packaging files:
+*.egg*
+
+# Sphinx docs:
+build
+
+# SQLite3 database files:
+*.db
+
+# Logs:
+*.log
+
+# Eclipse
+.project
+
+# Linux Editors
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+.elc
+auto-save-list
+tramp
+.\#*
+*.swp
+*.swo
+
+# Mac
+.DS_Store
+._*
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Dev tools
+.idea
+.vagrant
+
+# Ignore local configurations
+wrds/settings/local.py
+db.sqlite3
+
+# Node modules
+node_modules/
+
+# Bower components
+bower_components/
+
+# Coverage
+htmlcov/
+.coverage
