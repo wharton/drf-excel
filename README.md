@@ -1,6 +1,6 @@
 # Django REST Framework Renderer: XLSX
 
-drf-renderer-xlsx provides an XLSX renderer for Django REST Framework. It uses OpenPyXL to create the spreadsheet and returns the data.
+`drf-renderer-xlsx` provides an XLSX renderer for Django REST Framework. It uses OpenPyXL to create the spreadsheet and returns the data.
 
 # Requirements
 
@@ -29,4 +29,3 @@ Then add the following to your `REST_FRAMEWORK` settings:
 # Contributors
 
 * [Timothy Allen](https://github.com/FlipperPA)
-* [Charles Rejonis](https://github.com/rejonis)
