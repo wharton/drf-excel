@@ -7,7 +7,7 @@ setup(
     long_description='',
     author='Timothy Allen',
     author_email='tallen@wharton.upenn.edu',
-    url='https://github.com/wharton/drf-renderer-xls',
+    url='https://github.com/wharton/drf-renderer-xlsx',
     include_package_data=True,
     packages=find_packages(),
     zip_safe=False,
