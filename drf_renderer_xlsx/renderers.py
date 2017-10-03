@@ -54,6 +54,5 @@ class XLSXRenderer(BaseRenderer):
                         column[1],
                     ),
                 )
-                print(column)
 
         return save_virtual_workbook(wb)
