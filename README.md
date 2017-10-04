@@ -26,6 +26,18 @@ Then add the following to your `REST_FRAMEWORK` settings:
         ),
     }
 
+To avoid having a file streamed without a filename (which the browser will often default to the filename "download", with no extension), we need to use a mixin to override the Content-Disposition like so:
+
+    from rest_framework.viewsets import ReadOnlyModelViewSet
+    from drf_renderer_xlsx.mixins import XLSXFileMixin
+
+    from .models import MyExampleModel
+    from .serializers import MyExampleSerializer
+
+    class MyExampleViewSet(XLSXFileMixin, ReadOnlyModelViewSet):
+        queryset = MyExampleModel.objects.all()
+        serializer_class = MyExampleSerializer
+
 # Contributors
 
 * [Timothy Allen](https://github.com/FlipperPA)

@@ -1,4 +1,5 @@
 from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
 from openpyxl.writer.excel import save_virtual_workbook
 from rest_framework.renderers import BaseRenderer
 
@@ -25,26 +26,17 @@ class XLSXRenderer(BaseRenderer):
         ws.title = 'Data Browser Export'
 
         for row in data['results']:
-            # Reset the column count
-            column_count = 0
+            # Set the header row
+            if row_count == 0:
+                ws.append(list(row.keys()))
 
             # Increase the row count
             row_count += 1
 
-            # Set the XLSX header row
-            if row_count == 1:
-                for column_name in row.keys():
-                    column_count += 1
-                    ws.cell(
-                        row=row_count,
-                        column=column_count,
-                        value='{}'.format(
-                            column_name,
-                        ),
-                    )
-                column_count = 0
-                row_count += 1
+            # Reset the column count
+            column_count = 0
 
+            # Build the column cells
             for column in row.items():
                 column_count += 1
                 ws.cell(
@@ -54,5 +46,9 @@ class XLSXRenderer(BaseRenderer):
                         column[1],
                     ),
                 )
+
+        for ws_column in range(1, column_count):
+            col_letter = get_column_letter(ws_column)
+            ws.column_dimensions[col_letter].auto_size = True
 
         return save_virtual_workbook(wb)
