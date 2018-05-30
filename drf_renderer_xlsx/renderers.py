@@ -1,3 +1,5 @@
+import json
+
 from openpyxl import Workbook
 from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
@@ -16,6 +18,9 @@ class XLSXRenderer(BaseRenderer):
         """
         Render `data` into JSON, returning a bytestring.
         """
+        if not self._check_validatation_data(data):
+            return self._json_format_response(data)
+
         row_count = 0
 
         if data is None:
@@ -63,3 +68,12 @@ class XLSXRenderer(BaseRenderer):
             ws.column_dimensions[col_letter].width = 15
 
         return save_virtual_workbook(wb)
+
+    def _check_validatation_data(self, data):
+        detail_key = 'detail'
+        if detail_key in data:
+            return False
+        return True
+
+    def _json_format_response(self, response_data):
+        return json.dumps(response_data)
