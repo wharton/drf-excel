@@ -30,6 +30,7 @@ To avoid having a file streamed without a filename (which the browser will often
 
     from rest_framework.viewsets import ReadOnlyModelViewSet
     from drf_renderer_xlsx.mixins import XLSXFileMixin
+    from drf_renderer_xlsx.renderers import XLSXRenderer
 
     from .models import MyExampleModel
     from .serializers import MyExampleSerializer
@@ -37,6 +38,8 @@ To avoid having a file streamed without a filename (which the browser will often
     class MyExampleViewSet(XLSXFileMixin, ReadOnlyModelViewSet):
         queryset = MyExampleModel.objects.all()
         serializer_class = MyExampleSerializer
+        renderer_classes = (XLSXRenderer,)
+
 
 # Contributors
 
