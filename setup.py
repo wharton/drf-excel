@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='drf-renderer-xlsx',
-    version="0.2.2",
+    version="0.2.3",
     description='Django REST Framework renderer for spreadsheet (xlsx) files.',
     long_description='',
     author='Timothy Allen',
@@ -24,6 +24,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Framework :: Django',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
