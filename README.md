@@ -41,6 +41,10 @@ To avoid having a file streamed without a filename (which the browser will often
         renderer_classes = (XLSXRenderer,)
 
 
-# Contributors
+## Maintainer
 
 * [Timothy Allen](https://github.com/FlipperPA)
+
+## Contributors (Thank You!)
+
+* [Pavel Tolstolytko](https://github.com/eshikvtumane)
