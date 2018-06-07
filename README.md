@@ -12,7 +12,7 @@ It may work with earlier versions, but has been tested with the following:
 
 # Installation
 
-    pip install drf-renderer-xls
+    pip install drf-renderer-xlsx
 
 Then add the following to your `REST_FRAMEWORK` settings:
 
