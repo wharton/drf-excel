@@ -40,6 +40,81 @@ To avoid having a file streamed without a filename (which the browser will often
         serializer_class = MyExampleSerializer
         renderer_classes = (XLSXRenderer,)
 
+# Configure styles 
+You can add styles to your worksheet header, column header row and body rows from view attributes `header`, `column_header`, `body`.
+You can use any arguments from [openpyxl](https://openpyxl.readthedocs.io/en/stable/styles.html) library to font, alignment, fill and border_side (border always at 4 side of cell).   
+
+
+
+    class MyExampleViewSet(XLSXFileMixin, ReadOnlyModelViewSet):
+        queryset = MyExampleModel.objects.all()
+        serializer_class = MyExampleSerializer
+        renderer_classes = (XLSXRenderer,)
+    
+        column_header = {'titles': ["Column_1_name", "Column_2_name", "Column_3_name"],
+                         'width': [17, 30, 17],
+                         'height': 25,
+                         'style': {'fill': {'fill_type': 'solid',
+                                            'start_color': 'FFCCFFCC'},
+                                   'alignment': {'horizontal': 'center',
+                                                 'vertical': 'center',
+                                                 'wrapText': True,
+                                                 'shrink_to_fit': True},
+                                   'border_side': {'border_style': 'thin',
+                                                   'color': 'FF000000'},
+                                   'font': {'name': 'Arial',
+                                            'size': 14,
+                                            'bold': True,
+                                            'color': 'FF000000'}
+                                   },
+                         }
+        body = {'style': {'fill': {'fill_type': 'solid',
+                                   'start_color': 'FFCCFFCC'},
+                          'alignment': {'horizontal': 'center',
+                                        'vertical': 'center',
+                                        'wrapText': True,
+                                        'shrink_to_fit': True},
+                          'border_side': {'border_style': 'thin',
+                                          'color': 'FF000000'},
+                          'font': {'name': 'Arial',
+                                   'size': 14,
+                                   'bold': False,
+                                   'color': 'FF000000'}},
+                'height': 40}
+
+Also you can dynamically generate style attributes in methods `get_body`, `get_header`, `get_column_header`.
+
+        def get_header(self):
+            starttime, endtime = parse_times(request=self.request)
+            datetime_format = "%H:%M:%S %d.%m.%Y"
+            return {'tab_title': 'MyReport',
+                    'header_title': 'Report from {} to {}'.format(starttime.strftime(datetime_format),
+                                                                  endtime.strftime(datetime_format)),
+                    'height': 45,
+                    'img': 'app/images/MyLogo.png',
+                    'style': {'fill': {'fill_type': 'solid',
+                                       'start_color': 'FFFFFFFF'},
+                              'alignment':
+                                  {'horizontal': 'center',
+                                   'vertical': 'center',
+                                   'wrapText': True,
+                                   'shrink_to_fit': True},
+                              'border_side': {'border_style': 'thin',
+                                              'color': 'FF000000'},
+                              'font': {'name': 'Arial',
+                                       'size': 16,
+                                       'bold': True,
+                                       'color': 'FF000000'}
+                              }
+                   }
+Also you can add `color` field to your serializer and fill body rows.
+
+    class exampleSerializer(serializers.Serializer):
+        color = serializers.SerializerMethodField()
+    
+        def get_color(self, instance):
+            color_map = {'w': 'FFFFFFCC', 'a': 'FFFFCCCC'}
+            return color_map.get(instance.alarm_level, 'FFFFFFFF')
 
 # Contributors
 
