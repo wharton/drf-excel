@@ -31,7 +31,7 @@ Then add the following to your `REST_FRAMEWORK` settings:
     }
 ```
 
-To avoid having a file streamed without a filename (which the browser will often default to the filename "download", with no extension), we need to use a mixin to override the Content-Disposition like so:
+To avoid having a file streamed without a filename (which the browser will often default to the filename "download", with no extension), we need to use a mixin to override the `Content-Disposition` header. If no `filename` is provided, it will default to `export.xlsx`. For example:
 
 ```python
 from rest_framework.viewsets import ReadOnlyModelViewSet
@@ -45,6 +45,7 @@ class MyExampleViewSet(XLSXFileMixin, ReadOnlyModelViewSet):
     queryset = MyExampleModel.objects.all()
     serializer_class = MyExampleSerializer
     renderer_classes = (XLSXRenderer,)
+    filename = 'my_export.xlsx'
 ```
 
 # Configuring Styles 
