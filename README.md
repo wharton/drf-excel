@@ -175,7 +175,7 @@ class ExampleSerializer(serializers.Serializer):
 
 ## Maintainer
 
-* [Timothy Allen](https://github.com/FlipperPA)
+* [Timothy Allen](https://github.com/FlipperPA) at [The Wharton School](https://github.com/wharton)
 
 ## Contributors (Thank You!)
 
