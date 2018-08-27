@@ -166,6 +166,13 @@ class ExampleSerializer(serializers.Serializer):
         return color_map.get(instance.alarm_level, 'FFFFFFFF')
 ```
 
+## Release Notes
+
+### 0.3.0
+
+* Add support for custom spreadsheet styles (thanks, Pavel Bryantsev!)
+* Add an attribute for setting the download filename instead of `export.xlsx` per view.
+
 ## Maintainer
 
 * [Timothy Allen](https://github.com/FlipperPA)
