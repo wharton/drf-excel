@@ -123,3 +123,4 @@ Also you can add `color` field to your serializer and fill body rows.
 ## Contributors (Thank You!)
 
 * [Pavel Tolstolytko](https://github.com/eshikvtumane)
+* [Pavel Bryantsev](https://github.com/Tigven)
