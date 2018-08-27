@@ -52,7 +52,7 @@ You can use any arguments from [openpyxl](https://openpyxl.readthedocs.io/en/sta
         renderer_classes = (XLSXRenderer,)
     
         column_header = {'titles': ["Column_1_name", "Column_2_name", "Column_3_name"],
-                         'width': [17, 30, 17],
+                         'column_width': [17, 30, 17],
                          'height': 25,
                          'style': {'fill': {'fill_type': 'solid',
                                             'start_color': 'FFCCFFCC'},
