@@ -1,7 +1,7 @@
 import json
 
 from openpyxl import Workbook
-from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font, NamedStyle
+from openpyxl.styles import PatternFill, Border, Side, Alignment, Font, NamedStyle
 from openpyxl.drawing.image import Image
 from openpyxl.utils import get_column_letter
 from openpyxl.writer.excel import save_virtual_workbook
@@ -40,11 +40,13 @@ def get_style_from_dict(style_dict, style_name):
             style.alignment = Alignment(**value)
         elif key == 'border_side':
             side = Side(**value)
-            style.border = Border(left=side,
-                                  right=side,
-                                  top=side,
-                                  bottom=side
-                                  )
+            style.border = Border(
+                left=side,
+                right=side,
+                top=side,
+                bottom=side,
+            )
+
     return style
 
 
@@ -98,31 +100,37 @@ class XLSXRenderer(BaseRenderer):
             ws.add_image(img, 'A1')
         header_style = get_style_from_dict(header.get('style'), 'header_style')
 
-        column_header = get_attribute(renderer_context['view'], 'column_header', {})
-        column_header_style = get_style_from_dict(column_header.get('style'), 'column_header_style')
+        column_header = get_attribute(
+            renderer_context['view'],
+            'column_header',
+            {},
+        )
+        column_header_style = get_style_from_dict(
+            column_header.get('style'),
+            'column_header_style',
+        )
 
         column_count = 0
         row_count = 1
         if header:
             row_count += 1
         # Make column headers
-        for col in column_header.get('titles', {}):
+        column_titles = column_header.get('titles', [])
+
+        for column_name in results[0].keys():
+            if column_name == 'row_color':
+                continue
             column_count += 1
+            if column_count > len(column_titles):
+                column_name_display = column_name
+            else:
+                column_name_display = column_titles[column_count - 1]
+
             ws.cell(
                 row=row_count,
                 column=column_count,
-                value=col,
+                value=column_name_display,
             ).style = column_header_style
-        if not column_header:
-            for column_name in results[0].keys():
-                if column_name == 'row_color':
-                    continue
-                column_count += 1
-                ws.cell(
-                    row=row_count,
-                    column=column_count,
-                    value=column_name,
-                ).style = column_header_style
         ws.row_dimensions[row_count].height = column_header.get('height', 45)
 
         # Set the header row
@@ -133,10 +141,10 @@ class XLSXRenderer(BaseRenderer):
             ws.merge_cells('A1:{}1'.format(last_col_letter))
 
             cell = ws.cell(
-                    row=1,
-                    column=1,
-                    value=header_title,
-                    )
+                row=1,
+                column=1,
+                value=header_title,
+            )
             cell.style = header_style
             ws.row_dimensions[1].height = header.get('height', 45)
 
