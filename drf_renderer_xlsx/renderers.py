@@ -155,14 +155,14 @@ class XLSXRenderer(BaseRenderer):
                     continue
                 column_count += 1
                 cell = ws.cell(
-                    row=row_count, column=column_count, value="{}".format(value)
+                    row=row_count, column=column_count, value=value,
                 )
                 cell.style = body_style
             ws.row_dimensions[row_count].height = body.get("height", 40)
             if "row_color" in row:
                 last_letter = get_column_letter(column_count)
                 cell_range = ws[
-                    "A{}".format(row_count) : "{}{}".format(last_letter, row_count)
+                    "A{}".format(row_count): "{}{}".format(last_letter, row_count)
                 ]
                 fill = PatternFill(fill_type="solid", start_color=row["row_color"])
                 for r in cell_range:
