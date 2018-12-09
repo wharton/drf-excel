@@ -32,20 +32,15 @@ def get_style_from_dict(style_dict, style_name):
     if not style_dict:
         return style
     for key, value in style_dict.items():
-        if key == 'font':
+        if key == "font":
             style.font = Font(**value)
-        elif key == 'fill':
+        elif key == "fill":
             style.fill = PatternFill(**value)
-        elif key == 'alignment':
+        elif key == "alignment":
             style.alignment = Alignment(**value)
-        elif key == 'border_side':
+        elif key == "border_side":
             side = Side(**value)
-            style.border = Border(
-                left=side,
-                right=side,
-                top=side,
-                bottom=side,
-            )
+            style.border = Border(left=side, right=side, top=side, bottom=side)
 
     return style
 
@@ -60,7 +55,7 @@ def get_attribute(get_from, prop_name, default=None):
     """
     prop = getattr(get_from, prop_name, None)
     if not prop:
-        prop_func = getattr(get_from, 'get_{}'.format(prop_name), None)
+        prop_func = getattr(get_from, "get_{}".format(prop_name), None)
         if prop_func:
             prop = prop_func()
     if prop is None:
@@ -72,8 +67,9 @@ class XLSXRenderer(BaseRenderer):
     """
     Renderer for Excel spreadsheet open data format (xlsx).
     """
-    media_type = 'application/xlsx'
-    format = 'xlsx'
+
+    media_type = "application/xlsx"
+    format = "xlsx"
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
         """
@@ -88,26 +84,21 @@ class XLSXRenderer(BaseRenderer):
         wb = Workbook()
         ws = wb.active
 
-        results = data['results'] if 'results' in data else data
+        results = data["results"] if "results" in data else data
 
         # Take header and column_header params from view
-        header = get_attribute(renderer_context['view'], 'header', {})
-        ws.title = header.get('tab_title', 'Report')
-        header_title = header.get('header_title', 'Report')
-        img_addr = header.get('img')
+        header = get_attribute(renderer_context["view"], "header", {})
+        ws.title = header.get("tab_title", "Report")
+        header_title = header.get("header_title", "Report")
+        img_addr = header.get("img")
         if img_addr:
             img = Image(img_addr)
-            ws.add_image(img, 'A1')
-        header_style = get_style_from_dict(header.get('style'), 'header_style')
+            ws.add_image(img, "A1")
+        header_style = get_style_from_dict(header.get("style"), "header_style")
 
-        column_header = get_attribute(
-            renderer_context['view'],
-            'column_header',
-            {},
-        )
+        column_header = get_attribute(renderer_context["view"], "column_header", {})
         column_header_style = get_style_from_dict(
-            column_header.get('style'),
-            'column_header_style',
+            column_header.get("style"), "column_header_style"
         )
 
         column_count = 0
@@ -115,10 +106,10 @@ class XLSXRenderer(BaseRenderer):
         if header:
             row_count += 1
         # Make column headers
-        column_titles = column_header.get('titles', [])
+        column_titles = column_header.get("titles", [])
 
         for column_name in results[0].keys():
-            if column_name == 'row_color':
+            if column_name == "row_color":
                 continue
             column_count += 1
             if column_count > len(column_titles):
@@ -127,29 +118,23 @@ class XLSXRenderer(BaseRenderer):
                 column_name_display = column_titles[column_count - 1]
 
             ws.cell(
-                row=row_count,
-                column=column_count,
-                value=column_name_display,
+                row=row_count, column=column_count, value=column_name_display
             ).style = column_header_style
-        ws.row_dimensions[row_count].height = column_header.get('height', 45)
+        ws.row_dimensions[row_count].height = column_header.get("height", 45)
 
         # Set the header row
         if header:
-            last_col_letter = 'G'
+            last_col_letter = "G"
             if column_count:
                 last_col_letter = get_column_letter(column_count)
-            ws.merge_cells('A1:{}1'.format(last_col_letter))
+            ws.merge_cells("A1:{}1".format(last_col_letter))
 
-            cell = ws.cell(
-                row=1,
-                column=1,
-                value=header_title,
-            )
+            cell = ws.cell(row=1, column=1, value=header_title)
             cell.style = header_style
-            ws.row_dimensions[1].height = header.get('height', 45)
+            ws.row_dimensions[1].height = header.get("height", 45)
 
         # Set column width
-        column_width = column_header.get('column_width', 20)
+        column_width = column_header.get("column_width", 20)
         if isinstance(column_width, list):
             for i, width in enumerate(column_width):
                 col_letter = get_column_letter(i + 1)
@@ -160,24 +145,26 @@ class XLSXRenderer(BaseRenderer):
                 ws.column_dimensions[col_letter].width = column_width
 
         # Make body
-        body = get_attribute(renderer_context['view'], 'body', {})
-        body_style = get_style_from_dict(body.get('style'), 'body_style')
+        body = get_attribute(renderer_context["view"], "body", {})
+        body_style = get_style_from_dict(body.get("style"), "body_style")
         for row in results:
             column_count = 0
             row_count += 1
             for column_name, value in row.items():
-                if column_name == 'row_color':
+                if column_name == "row_color":
                     continue
                 column_count += 1
-                cell = ws.cell(row=row_count,
-                               column=column_count,
-                               value='{}'.format(value))
+                cell = ws.cell(
+                    row=row_count, column=column_count, value="{}".format(value)
+                )
                 cell.style = body_style
-            ws.row_dimensions[row_count].height = body.get('height', 40)
-            if 'row_color' in row:
+            ws.row_dimensions[row_count].height = body.get("height", 40)
+            if "row_color" in row:
                 last_letter = get_column_letter(column_count)
-                cell_range = ws['A{}'.format(row_count):'{}{}'.format(last_letter, row_count)]
-                fill = PatternFill(fill_type='solid', start_color=row['row_color'])
+                cell_range = ws[
+                    "A{}".format(row_count) : "{}{}".format(last_letter, row_count)
+                ]
+                fill = PatternFill(fill_type="solid", start_color=row["row_color"])
                 for r in cell_range:
                     for c in r:
                         c.fill = fill
@@ -185,7 +172,7 @@ class XLSXRenderer(BaseRenderer):
         return save_virtual_workbook(wb)
 
     def _check_validatation_data(self, data):
-        detail_key = 'detail'
+        detail_key = "detail"
         if detail_key in data:
             return False
         return True
