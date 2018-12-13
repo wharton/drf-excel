@@ -168,6 +168,11 @@ class ExampleSerializer(serializers.Serializer):
 
 ## Release Notes
 
+### 0.3.1
+
+* Fix an error when an empty result set was returned from the endpoint. Now, it will properly just download an empty spreadsheet.
+* Remove an errant `format()` function which was removing typing from the spreadsheet.
+
 ### 0.3.0
 
 * Add support for custom spreadsheet styles (thanks, Pavel Bryantsev!)
