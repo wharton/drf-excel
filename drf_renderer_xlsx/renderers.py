@@ -108,19 +108,21 @@ class XLSXRenderer(BaseRenderer):
         # Make column headers
         column_titles = column_header.get("titles", [])
 
-        for column_name in results[0].keys():
-            if column_name == "row_color":
-                continue
-            column_count += 1
-            if column_count > len(column_titles):
-                column_name_display = column_name
-            else:
-                column_name_display = column_titles[column_count - 1]
+        # If we have results, pull the columns names from the keys of the first row
+        if len(results):
+            for column_name in results[0].keys():
+                if column_name == "row_color":
+                    continue
+                column_count += 1
+                if column_count > len(column_titles):
+                    column_name_display = column_name
+                else:
+                    column_name_display = column_titles[column_count - 1]
 
-            ws.cell(
-                row=row_count, column=column_count, value=column_name_display
-            ).style = column_header_style
-        ws.row_dimensions[row_count].height = column_header.get("height", 45)
+                ws.cell(
+                    row=row_count, column=column_count, value=column_name_display
+                ).style = column_header_style
+            ws.row_dimensions[row_count].height = column_header.get("height", 45)
 
         # Set the header row
         if header:
