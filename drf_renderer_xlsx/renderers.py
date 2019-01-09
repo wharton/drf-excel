@@ -1,5 +1,6 @@
 import json
 
+from collections.abc import MutableMapping, Iterable
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Side, Alignment, Font, NamedStyle
 from openpyxl.drawing.image import Image
@@ -110,7 +111,8 @@ class XLSXRenderer(BaseRenderer):
 
         # If we have results, pull the columns names from the keys of the first row
         if len(results):
-            for column_name in results[0].keys():
+            column_names_first_row = self._flatten(results[0])
+            for column_name in column_names_first_row.keys():
                 if column_name == "row_color":
                     continue
                 column_count += 1
@@ -152,7 +154,8 @@ class XLSXRenderer(BaseRenderer):
         for row in results:
             column_count = 0
             row_count += 1
-            for column_name, value in row.items():
+            flatten_row = self._flatten(row)
+            for column_name, value in flatten_row.items():
                 if column_name == "row_color":
                     continue
                 column_count += 1
@@ -178,6 +181,21 @@ class XLSXRenderer(BaseRenderer):
         if detail_key in data:
             return False
         return True
+
+    def _flatten(self, data, parent_key='', sep='.'):
+        items = []
+        for k, v in data.items():
+            new_key = f"{parent_key}{sep}{k}" if parent_key else k
+            if isinstance(v, MutableMapping):
+                items.extend(self._flatten(v, new_key, sep=sep).items())
+            elif isinstance(v, Iterable) and not isinstance(v, str):
+                # In case the value is an array it will be ignored 
+                # as it cannot be flatten into a xlsx colunm due to variety
+                # the number of columns per item
+                continue
+            else:
+                items.append((new_key, v))
+        return dict(items)
 
     def _json_format_response(self, response_data):
         return json.dumps(response_data)
