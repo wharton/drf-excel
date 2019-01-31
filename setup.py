@@ -5,7 +5,7 @@ with open("README.md") as f:
 
 setup(
     name="drf-renderer-xlsx",
-    version="0.3.1",
+    version="0.3.2",
     description="Django REST Framework renderer for spreadsheet (xlsx) files.",
     long_description=long_description,
     long_description_content_type="text/markdown",

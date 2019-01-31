@@ -168,6 +168,10 @@ class ExampleSerializer(serializers.Serializer):
 
 ## Release Notes
 
+### 0.3.2
+
+* Add supported for nested values; flattens sub-values into sub.value1, sub.value2, etc.
+
 ### 0.3.1
 
 * Fix an error when an empty result set was returned from the endpoint. Now, it will properly just download an empty spreadsheet.
@@ -184,5 +188,6 @@ class ExampleSerializer(serializers.Serializer):
 
 ## Contributors (Thank You!)
 
-* [Pavel Tolstolytko](https://github.com/eshikvtumane)
 * [Pavel Bryantsev](https://github.com/Tigven)
+* [Felipe Schmitt](https://github.com/fsschmitt)
+* [Pavel Tolstolytko](https://github.com/eshikvtumane)
