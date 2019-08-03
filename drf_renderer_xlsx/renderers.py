@@ -189,6 +189,9 @@ class XLSXRenderer(BaseRenderer):
             if isinstance(v, MutableMapping):
                 items.extend(self._flatten(v, new_key, sep=sep).items())
             elif isinstance(v, Iterable) and not isinstance(v, str):
+                # In case the value is an array it will be ignored
+                # as it cannot be flatten into a xlsx column due to
+                # the number of columns per item being variable
                 items.append((new_key, sep.join(v)))
             else:
                 items.append((new_key, v))
