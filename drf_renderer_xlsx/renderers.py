@@ -182,7 +182,7 @@ class XLSXRenderer(BaseRenderer):
             return False
         return True
 
-    def _flatten(self, data, parent_key='', key_sep='.', list_sep=','):
+    def _flatten(self, data, parent_key='', key_sep='.', list_sep=', '):
         items = []
         for k, v in data.items():
             new_key = f"{parent_key}{key_sep}{k}" if parent_key else k
