@@ -168,9 +168,13 @@ class ExampleSerializer(serializers.Serializer):
 
 ## Release Notes
 
+### 0.3.3
+
+* Add support for nested arrays, flattening them into a string: `value1, value2, value3`, etc.
+
 ### 0.3.2
 
-* Add supported for nested values; flattens sub-values into sub.value1, sub.value2, etc.
+* Add supported for nested values; flattens sub-values into `sub.value1, sub.value2, sub.value3`, etc.
 
 ### 0.3.1
 
@@ -185,6 +189,8 @@ class ExampleSerializer(serializers.Serializer):
 ## Maintainer
 
 * [Timothy Allen](https://github.com/FlipperPA) at [The Wharton School](https://github.com/wharton)
+
+This project is maintained by the staff of [Wharton Research Data Services](https://wrds.wharton.upenn.edu/). 
 
 ## Contributors (Thank You!)
 
