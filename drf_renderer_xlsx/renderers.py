@@ -182,17 +182,16 @@ class XLSXRenderer(BaseRenderer):
             return False
         return True
 
-    def _flatten(self, data, parent_key='', sep=','):
+    def _flatten(self, data, parent_key='', key_sep='.', list_sep=','):
         items = []
         for k, v in data.items():
-            new_key = f"{parent_key}{sep}{k}" if parent_key else k
+            new_key = f"{parent_key}{key_sep}{k}" if parent_key else k
             if isinstance(v, MutableMapping):
-                items.extend(self._flatten(v, new_key, sep=sep).items())
+                items.extend(self._flatten(v, new_key, key_sep=key_sep).items())
             elif isinstance(v, Iterable) and not isinstance(v, str):
-                # In case the value is an array it will be ignored
-                # as it cannot be flatten into a xlsx column due to
-                # the number of columns per item being variable
-                items.append((new_key, sep.join(v)))
+                # Flatten the array into a comma separated string to fit
+                # in a single spreadsheet column
+                items.append((new_key, list_sep.join(v)))
             else:
                 items.append((new_key, v))
         return dict(items)
