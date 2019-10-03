@@ -189,9 +189,13 @@ class XLSXRenderer(BaseRenderer):
             if isinstance(v, MutableMapping):
                 items.extend(self._flatten(v, new_key, key_sep=key_sep).items())
             elif isinstance(v, Iterable) and not isinstance(v, str):
-                # Flatten the array into a comma separated string to fit
-                # in a single spreadsheet column
-                items.append((new_key, list_sep.join(v)))
+                if isinstance(v[0], Iterable):
+                    # array of array; write as json
+                    items.append((new_key, json.dumps(v)))
+                else:
+                    # Flatten the array into a comma separated string to fit
+                    # in a single spreadsheet column
+                    items.append((new_key, list_sep.join(v)))
             else:
                 items.append((new_key, v))
         return dict(items)
