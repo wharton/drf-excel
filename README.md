@@ -198,3 +198,4 @@ This package is maintained by the staff of [Wharton Research Data Services](http
 * [Felipe Schmitt](https://github.com/fsschmitt)
 * [ffruit](https://github.com/frruit)
 * [Pavel Tolstolytko](https://github.com/eshikvtumane)
+* [Thomas Willems](https://github.com/willtho89)
