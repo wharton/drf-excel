@@ -168,6 +168,10 @@ class ExampleSerializer(serializers.Serializer):
 
 ## Release Notes
 
+### 0.3.4
+
+* Switch to `setuptools_scm`. Add support for `ReturnDict` in addition to `ReturnList`.
+
 ### 0.3.3
 
 * Add support for nested arrays, flattening them into a string: `value1, value2, value3`, etc.
