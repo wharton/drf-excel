@@ -48,6 +48,8 @@ class MyExampleViewSet(XLSXFileMixin, ReadOnlyModelViewSet):
     filename = 'my_export.xlsx'
 ```
 
+The `XLSXFileMixin` also provides a `get_filename()` method which can be overridden, if you prefer to provide a filename programmatically instead of the `filename` attribute.
+
 # Configuring Styles 
 
 Styles can be added to your worksheet header, column header row, and body rows, from view attributes `header`, `column_header`, `body`. Any arguments from [the openpyxl library](https://openpyxl.readthedocs.io/en/stable/styles.html) can be used for font, alignment, fill and border_side (border will always be all side of cell).   

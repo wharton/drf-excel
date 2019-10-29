@@ -6,12 +6,22 @@ class XLSXFileMixin(object):
 
     filename = "export.xlsx"
 
+    def get_filename(self):
+        """
+        Returns a custom filename for the spreadsheet.
+        """
+        return self.filename
+
     def finalize_response(self, request, response, *args, **kwargs):
+        """
+        Return the response with the proper content disposition and the customized
+        filename instead of the browser default (or lack thereof).
+        """
         response = super(XLSXFileMixin, self).finalize_response(
             request, response, *args, **kwargs
         )
         if response.accepted_renderer.format == "xlsx":
             response["content-disposition"] = "attachment; filename={}".format(
-                self.filename
+                self.get_filename(),
             )
         return response
