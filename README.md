@@ -170,6 +170,10 @@ class ExampleSerializer(serializers.Serializer):
 
 ## Release Notes
 
+### 0.3.5
+
+* Add the `get_filename` method to allow programmatically naming the downloaded spreadsheet file.
+
 ### 0.3.4
 
 * Switch to `setuptools_scm`. Add support for `ReturnDict` in addition to `ReturnList`.
