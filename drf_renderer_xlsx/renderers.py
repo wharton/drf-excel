@@ -177,7 +177,7 @@ class XLSXRenderer(BaseRenderer):
             if isinstance(v, MutableMapping):
                 items.extend(self._flatten(v, new_key, key_sep=key_sep).items())
             elif isinstance(v, Iterable) and not isinstance(v, str):
-                if isinstance(v[0], Iterable):
+                if len(v) > 0 and isinstance(v[0], Iterable):
                     # array of array; write as json
                     items.append((new_key, json.dumps(v)))
                 else:
