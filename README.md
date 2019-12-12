@@ -170,6 +170,10 @@ class ExampleSerializer(serializers.Serializer):
 
 ## Release Notes
 
+### 0.3.6
+
+* Check to ensure lists have length before flattening.
+
 ### 0.3.5
 
 * Add the `get_filename` method to allow programmatically naming the downloaded spreadsheet file.
@@ -209,3 +213,4 @@ This package is maintained by the staff of [Wharton Research Data Services](http
 * [ffruit](https://github.com/frruit)
 * [Pavel Tolstolytko](https://github.com/eshikvtumane)
 * [Thomas Willems](https://github.com/willtho89)
+* [Davis Haupt](https://github.com/davish)
