@@ -170,7 +170,7 @@ class XLSXRenderer(BaseRenderer):
             return False
         return True
 
-    def _flatten(self, data, parent_key='', key_sep='.', list_sep=', '):
+    def _flatten(self, data, parent_key="", key_sep=".", list_sep=", "):
         items = []
         for k, v in data.items():
             new_key = f"{parent_key}{key_sep}{k}" if parent_key else k
@@ -199,16 +199,14 @@ class XLSXRenderer(BaseRenderer):
             if column_name == "row_color":
                 continue
             column_count += 1
-            cell = self.ws.cell(
-                row=row_count, column=column_count, value=value,
-            )
+            cell = self.ws.cell(row=row_count, column=column_count, value=value)
             cell.style = self.body_style
         self.ws.row_dimensions[row_count].height = self.body.get("height", 40)
         if "row_color" in row:
             last_letter = get_column_letter(column_count)
             cell_range = self.ws[
-                         "A{}".format(row_count): "{}{}".format(last_letter, row_count)
-                         ]
+                "A{}".format(row_count) : "{}{}".format(last_letter, row_count)
+            ]
             fill = PatternFill(fill_type="solid", start_color=row["row_color"])
             for r in cell_range:
                 for c in r:

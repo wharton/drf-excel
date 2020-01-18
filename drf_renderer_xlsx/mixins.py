@@ -23,7 +23,10 @@ class XLSXFileMixin(object):
         response = super(XLSXFileMixin, self).finalize_response(
             request, response, *args, **kwargs
         )
-        if isinstance(response, Response) and response.accepted_renderer.format == "xlsx":
+        if (
+            isinstance(response, Response)
+            and response.accepted_renderer.format == "xlsx"
+        ):
             response["content-disposition"] = "attachment; filename={}".format(
                 self.get_filename(),
             )
