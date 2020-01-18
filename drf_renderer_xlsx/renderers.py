@@ -114,8 +114,11 @@ class XLSXRenderer(BaseRenderer):
         if len(results):
             if isinstance(results, ReturnDict):
                 column_names_first_row = results
-            elif isinstance(results, ReturnList):
+            elif isinstance(results, ReturnList) or type(results) is list:
                 column_names_first_row = self._flatten(results[0])
+            elif type(results) is dict:
+                column_names_first_row = results
+
             for column_name in column_names_first_row.keys():
                 if column_name == "row_color":
                     continue
