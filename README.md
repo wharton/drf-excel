@@ -170,6 +170,10 @@ class ExampleSerializer(serializers.Serializer):
 
 ## Release Notes
 
+### 0.3.7
+
+* Better logic for flattening lists within cells. Bug fix for ViewSets with other actions, only applying to `Response` instances.
+
 ### 0.3.6
 
 * Check to ensure lists have length before flattening.
