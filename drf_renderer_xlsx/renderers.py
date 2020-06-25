@@ -160,7 +160,7 @@ class XLSXRenderer(BaseRenderer):
         self.body_style = get_style_from_dict(self.body.get("style"), "body_style")
         if isinstance(results, ReturnDict):
             self._make_body(results, row_count)
-        elif isinstance(results, ReturnList):
+        elif isinstance(results, ReturnList) or type(results) is list:
             for row in results:
                 self._make_body(row, row_count)
                 row_count += 1
