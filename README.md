@@ -170,46 +170,11 @@ class ExampleSerializer(serializers.Serializer):
 
 ## Release Notes
 
-### 0.3.7
-
-* Better logic for flattening lists within cells. Bug fix for ViewSets with other actions, only applying to `Response` instances.
-
-### 0.3.6
-
-* Check to ensure lists have length before flattening.
-
-### 0.3.5
-
-* Add the `get_filename` method to allow programmatically naming the downloaded spreadsheet file.
-
-### 0.3.4
-
-* Switch to `setuptools_scm`. Add support for `ReturnDict` in addition to `ReturnList`.
-
-### 0.3.3
-
-* Add support for nested arrays, flattening them into a string: `value1, value2, value3`, etc.
-
-### 0.3.2
-
-* Add supported for nested values; flattens sub-values into `sub.value1, sub.value2, sub.value3`, etc.
-
-### 0.3.1
-
-* Fix an error when an empty result set was returned from the endpoint. Now, it will properly just download an empty spreadsheet.
-* Remove an errant `format()` function which was removing typing from the spreadsheet.
-
-### 0.3.0
-
-* Add support for custom spreadsheet styles (thanks, Pavel Bryantsev!)
-* Add an attribute for setting the download filename instead of `export.xlsx` per view.
+Release notes are [available on GitHub](https://github.com/wharton/drf-renderer-xlsx/releases).
 
 ## Maintainers
 
 * [Timothy Allen](https://github.com/FlipperPA) at [The Wharton School](https://github.com/wharton)
-* [Davis Haupt](https://github.com/davish)
-* [Armaan Tobaccowalla](https://github.com/ArmaanT)
-* [Eric Wang](https://github.com/ezwang)
 
 This package is maintained by the staff of [Wharton Research Data Services](https://wrds.wharton.upenn.edu/). We are thrilled that [The Wharton School](https://www.wharton.upenn.edu/) allows us a certain amount of time to contribute to open-source projects. We add features as they are necessary for our projects, and try to keep up with Issues and Pull Requests as best we can. Due to constraints of time (our full time jobs!), Feature Requests without a Pull Request may not be implemented, but we are always open to new ideas and grateful for contributions and our package users.
 
@@ -221,3 +186,8 @@ This package is maintained by the staff of [Wharton Research Data Services](http
 * [Pavel Tolstolytko](https://github.com/eshikvtumane)
 * [Thomas Willems](https://github.com/willtho89)
 * [Davis Haupt](https://github.com/davish)
+* [Armaan Tobaccowalla](https://github.com/ArmaanT)
+* [Eric Wang](https://github.com/ezwang)
+* [Nick Kozhenin](https://github.com/mast22)
+* [Gonzalo Ayuso](https://github.com/gonzalo123)
+
