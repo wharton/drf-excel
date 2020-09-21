@@ -186,7 +186,7 @@ class XLSXRenderer(BaseRenderer):
                 else:
                     # Flatten the array into a comma separated string to fit
                     # in a single spreadsheet column
-                    items.append((new_key, list_sep.join(v)))
+                    items.append((new_key, list_sep.join(map(str, v))))
             else:
                 items.append((new_key, v))
         return dict(items)
