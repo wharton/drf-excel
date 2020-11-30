@@ -8,6 +8,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.writer.excel import save_virtual_workbook
 from rest_framework.renderers import BaseRenderer
 from rest_framework.utils.serializer_helpers import ReturnDict, ReturnList
+from django.core.serializers.json import DjangoJSONEncoder
 
 
 def get_style_from_dict(style_dict, style_name):
@@ -182,7 +183,7 @@ class XLSXRenderer(BaseRenderer):
             elif isinstance(v, Iterable) and not isinstance(v, str):
                 if len(v) > 0 and isinstance(v[0], Iterable):
                     # array of array; write as json
-                    items.append((new_key, json.dumps(v)))
+                    items.append((new_key, json.dumps(v, cls=DjangoJSONEncoder)))
                 else:
                     # Flatten the array into a comma separated string to fit
                     # in a single spreadsheet column
