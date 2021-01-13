@@ -172,7 +172,7 @@ class ExampleSerializer(serializers.Serializer):
 
 Release notes are [available on GitHub](https://github.com/wharton/drf-renderer-xlsx/releases).
 
-## Maintainers
+## Maintainer
 
 * [Timothy Allen](https://github.com/FlipperPA) at [The Wharton School](https://github.com/wharton)
 
