@@ -130,7 +130,7 @@ class XLSXRenderer(BaseRenderer):
                     column_name_display = column_titles[column_count - 1]
 
                 self.ws.cell(
-                    row=row_count, column=column_count, value=column_name_display
+                    row=row_count, column=column_count, value=str(column_name_display)
                 ).style = column_header_style
             self.ws.row_dimensions[row_count].height = column_header.get("height", 45)
 
