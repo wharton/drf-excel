@@ -6,9 +6,10 @@ from openpyxl.styles import PatternFill, Border, Side, Alignment, Font, NamedSty
 from openpyxl.drawing.image import Image
 from openpyxl.utils import get_column_letter
 from openpyxl.writer.excel import save_virtual_workbook
+from rest_framework.fields import Field
 from rest_framework.renderers import BaseRenderer
+from rest_framework.serializers import Serializer
 from rest_framework.utils.serializer_helpers import ReturnDict, ReturnList
-from django.core.serializers.json import DjangoJSONEncoder
 
 
 def get_style_from_dict(style_dict, style_name):
@@ -73,6 +74,7 @@ class XLSXRenderer(BaseRenderer):
 
     media_type = "application/xlsx"
     format = "xlsx"
+    xlsx_header_dict = {}
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
         """
@@ -103,7 +105,6 @@ class XLSXRenderer(BaseRenderer):
         column_header_style = get_style_from_dict(
             column_header.get("style"), "column_header_style"
         )
-
         column_count = 0
         row_count = 1
         if header:
@@ -111,21 +112,18 @@ class XLSXRenderer(BaseRenderer):
         # Make column headers
         column_titles = column_header.get("titles", [])
 
-        # If we have results, pull the columns names from the keys of the first row
+        # If we have results, get view and serializer from context, then flatten field names
         if len(results):
-            if isinstance(results, ReturnDict):
-                column_names_first_row = results
-            elif isinstance(results, ReturnList) or type(results) is list:
-                column_names_first_row = self._flatten(results[0])
-            elif type(results) is dict:
-                column_names_first_row = results
+            drf_view = renderer_context.get('view')
+            use_labels = getattr(drf_view, 'xlsx_use_labels', False)
+            self.xlsx_header_dict = self._flatten_serializer_keys(drf_view.get_serializer(), use_labels=use_labels)
 
-            for column_name in column_names_first_row.keys():
+            for column_name, column_label in self.xlsx_header_dict.items():
                 if column_name == "row_color":
                     continue
                 column_count += 1
                 if column_count > len(column_titles):
-                    column_name_display = column_name
+                    column_name_display = column_label
                 else:
                     column_name_display = column_titles[column_count - 1]
 
@@ -161,7 +159,7 @@ class XLSXRenderer(BaseRenderer):
         self.body_style = get_style_from_dict(self.body.get("style"), "body_style")
         if isinstance(results, ReturnDict):
             self._make_body(results, row_count)
-        elif isinstance(results, ReturnList) or type(results) is list:
+        elif isinstance(results, ReturnList):
             for row in results:
                 self._make_body(row, row_count)
                 row_count += 1
@@ -174,20 +172,50 @@ class XLSXRenderer(BaseRenderer):
             return False
         return True
 
-    def _flatten(self, data, parent_key="", key_sep=".", list_sep=", "):
+    def _flatten_serializer_keys(self, serializer, parent_key="", parent_label="", key_sep=".", list_sep=", ", label_sep=" > ", use_labels=False):
+        """
+        Iterate through serializer fields, recursively when field is a nested serializer
+        """
+        def _get_label(parent_label, label_sep, obj):
+            if getattr(v, 'label', None):
+                if parent_label:
+                    return f"{parent_label}{label_sep}{v.label}"
+                else:
+                    return str(v.label)
+            else:
+                False
+
+        _header_dict = {}
+        _fields = serializer.get_fields()
+        for k, v in _fields.items():
+            new_key = f"{parent_key}{key_sep}{k}" if parent_key else k
+            # Iterate through fields if field is a serializer. Check for labels and append if use_labels is True. Fallback to keys
+            if isinstance(v, Serializer):
+                if use_labels and getattr(v, 'label', None):
+                    _header_dict.update(self._flatten_serializer_keys(v, k, _get_label(parent_label, label_sep, v), key_sep, list_sep, label_sep, use_labels))
+                else:
+                    _header_dict.update(self._flatten_serializer_keys(v, k, key_sep=key_sep, list_sep=list_sep))
+            elif isinstance(v, Field):
+                if use_labels and getattr(v, 'label', None):
+                    _header_dict[new_key] = _get_label(parent_label, label_sep, v)
+                else:
+                    _header_dict[new_key] = new_key 
+        return _header_dict
+
+    def _flatten_data(self, data, parent_key="", key_sep=".", list_sep=", "):
         items = []
         for k, v in data.items():
             new_key = f"{parent_key}{key_sep}{k}" if parent_key else k
             if isinstance(v, MutableMapping):
-                items.extend(self._flatten(v, new_key, key_sep=key_sep).items())
+                items.extend(self._flatten_data(v, new_key, key_sep=key_sep).items())
             elif isinstance(v, Iterable) and not isinstance(v, str):
                 if len(v) > 0 and isinstance(v[0], Iterable):
                     # array of array; write as json
-                    items.append((new_key, json.dumps(v, cls=DjangoJSONEncoder)))
+                    items.append((new_key, json.dumps(v)))
                 else:
                     # Flatten the array into a comma separated string to fit
                     # in a single spreadsheet column
-                    items.append((new_key, list_sep.join(map(str, v))))
+                    items.append((new_key, list_sep.join(v)))
             else:
                 items.append((new_key, v))
         return dict(items)
@@ -198,12 +226,12 @@ class XLSXRenderer(BaseRenderer):
     def _make_body(self, row, row_count):
         column_count = 0
         row_count += 1
-        flatten_row = self._flatten(row)
-        for column_name, value in flatten_row.items():
-            if column_name == "row_color":
+        flattened_row = self._flatten_data(row)
+        for header_key in self.xlsx_header_dict:
+            if header_key == "row_color":
                 continue
             column_count += 1
-            cell = self.ws.cell(row=row_count, column=column_count, value=value)
+            cell = self.ws.cell(row=row_count, column=column_count, value=flattened_row.get(header_key))
             cell.style = self.body_style
         self.ws.row_dimensions[row_count].height = self.body.get("height", 40)
         if "row_color" in row:
