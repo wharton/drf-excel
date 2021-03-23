@@ -1,6 +1,7 @@
 import json
 
 from collections.abc import MutableMapping, Iterable
+from django.utils.dateparse import parse_datetime
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Side, Alignment, Font, NamedStyle
 from openpyxl.drawing.image import Image
@@ -75,6 +76,10 @@ class XLSXRenderer(BaseRenderer):
     media_type = "application/xlsx"
     format = "xlsx"
     xlsx_header_dict = {}
+    ignore_headers = []
+    boolean_labels = None
+    date_format_mappings = None
+    custom_mappings = None
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
         """
@@ -115,7 +120,25 @@ class XLSXRenderer(BaseRenderer):
         # If we have results, get view and serializer from context, then flatten field names
         if len(results):
             drf_view = renderer_context.get('view')
+
+            # set xlsx_use_labels = True inside API view to enable labels
             use_labels = getattr(drf_view, 'xlsx_use_labels', False)
+
+            # A list of header keys to ignore in our export
+            self.ignore_headers = getattr(drf_view, 'xlsx_ignore_headers', [])
+            
+            # set dict named xlsx_use_labels inside API View. i.e. { True: 'Yes', False: 'No' }
+            self.boolean_display = getattr(drf_view, 'xlsx_boolean_labels', None)
+
+            # set dict named xlsx_date_format_mappings with headers as keys and formatting as value. i.e. { 'created_at': '%d.%m.%Y, %H:%M' }
+            self.date_format_mappings = getattr(drf_view, 'xlsx_date_format_mappings', None)
+
+            # In case you have a field that returns a dict instead of a simple value, only one header will exist. 
+            # To map this column to a specific key/value, custom mappings can be defined.
+            # For example: "custom_choice" returns the choice returns { value: 1, display: 'A custom choice' }, 
+            # a custom mapping could be { 'custom_choice': 'custom_choice.display' }, showing 'display' in the 'custom_choice' col
+            self.custom_mappings = getattr(drf_view, 'xlsx_custom_mappings', None)
+
             self.xlsx_header_dict = self._flatten_serializer_keys(drf_view.get_serializer(), use_labels=use_labels)
 
             for column_name, column_label in self.xlsx_header_dict.items():
@@ -189,6 +212,9 @@ class XLSXRenderer(BaseRenderer):
         _fields = serializer.get_fields()
         for k, v in _fields.items():
             new_key = f"{parent_key}{key_sep}{k}" if parent_key else k
+            # Skip headers we want to ignore
+            if new_key in self.ignore_headers:
+                continue
             # Iterate through fields if field is a serializer. Check for labels and append if use_labels is True. Fallback to keys
             if isinstance(v, Serializer):
                 if use_labels and getattr(v, 'label', None):
@@ -203,21 +229,36 @@ class XLSXRenderer(BaseRenderer):
         return _header_dict
 
     def _flatten_data(self, data, parent_key="", key_sep=".", list_sep=", "):
+
+        def _append_item(key, value):
+            if key in self.date_format_mappings:
+                try:
+                    date = parse_datetime(value)
+                    items.append((key, date.strftime(self.date_format_mappings[key])))
+                    return
+                except TypeError:
+                    pass
+            items.append((key, value))
+
         items = []
         for k, v in data.items():
             new_key = f"{parent_key}{key_sep}{k}" if parent_key else k
-            if isinstance(v, MutableMapping):
+            if self.custom_mappings and new_key in self.custom_mappings:
+                _append_item(new_key, v.get(self.custom_mappings[new_key]))
+            elif isinstance(v, MutableMapping):
                 items.extend(self._flatten_data(v, new_key, key_sep=key_sep).items())
             elif isinstance(v, Iterable) and not isinstance(v, str):
                 if len(v) > 0 and isinstance(v[0], Iterable):
                     # array of array; write as json
-                    items.append((new_key, json.dumps(v)))
+                    _append_item(new_key, json.dumps(v))
                 else:
                     # Flatten the array into a comma separated string to fit
                     # in a single spreadsheet column
-                    items.append((new_key, list_sep.join(v)))
+                    _append_item(new_key, list_sep.join(v))
+            elif self.boolean_display and type(v) is bool:
+                _append_item(new_key, str(self.boolean_display.get(v, v)))
             else:
-                items.append((new_key, v))
+                _append_item(new_key, v)
         return dict(items)
 
     def _json_format_response(self, response_data):
