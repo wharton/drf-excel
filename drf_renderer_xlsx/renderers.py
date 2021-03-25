@@ -133,10 +133,9 @@ class XLSXRenderer(BaseRenderer):
             # set dict named xlsx_date_format_mappings with headers as keys and formatting as value. i.e. { 'created_at': '%d.%m.%Y, %H:%M' }
             self.date_format_mappings = getattr(drf_view, 'xlsx_date_format_mappings', None)
 
-            # In case you have a field that returns a dict instead of a simple value, only one header will exist. 
-            # To map this column to a specific key/value, custom mappings can be defined.
-            # For example: "custom_choice" returns the choice returns { value: 1, display: 'A custom choice' }, 
-            # a custom mapping could be { 'custom_choice': 'custom_choice.display' }, showing 'display' in the 'custom_choice' col
+            # Map a specific key to a column (i.e. if the field returns a json) or pass a function to format the value
+            # Example with key: { 'custom_choice': 'custom_choice.display' }, showing 'display' in the 'custom_choice' col
+            # Example with function { 'custom_choice': custom_func }, passing the value of 'custom_choice' to 'custom_func', allowing for formatting logic
             self.custom_mappings = getattr(drf_view, 'xlsx_custom_mappings', None)
 
             self.xlsx_header_dict = self._flatten_serializer_keys(drf_view.get_serializer(), use_labels=use_labels)
@@ -231,7 +230,7 @@ class XLSXRenderer(BaseRenderer):
     def _flatten_data(self, data, parent_key="", key_sep=".", list_sep=", "):
 
         def _append_item(key, value):
-            if key in self.date_format_mappings:
+            if self.date_format_mappings and key in self.date_format_mappings:
                 try:
                     date = parse_datetime(value)
                     items.append((key, date.strftime(self.date_format_mappings[key])))
@@ -244,7 +243,11 @@ class XLSXRenderer(BaseRenderer):
         for k, v in data.items():
             new_key = f"{parent_key}{key_sep}{k}" if parent_key else k
             if self.custom_mappings and new_key in self.custom_mappings:
-                _append_item(new_key, v.get(self.custom_mappings[new_key]))
+                custom_mapping = self.custom_mappings[new_key]
+                if type(custom_mapping) is str:
+                    _append_item(new_key, v.get(custom_mapping))
+                elif callable(custom_mapping):
+                    _append_item(new_key, custom_mapping(v))
             elif isinstance(v, MutableMapping):
                 items.extend(self._flatten_data(v, new_key, key_sep=key_sep).items())
             elif isinstance(v, Iterable) and not isinstance(v, str):
