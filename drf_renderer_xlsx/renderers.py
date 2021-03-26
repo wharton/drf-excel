@@ -117,27 +117,35 @@ class XLSXRenderer(BaseRenderer):
         # Make column headers
         column_titles = column_header.get("titles", [])
 
-        # If we have results, get view and serializer from context, then flatten field names
+        # If we have results, get view and serializer from context, then flatten field
+        # names
         if len(results):
             drf_view = renderer_context.get("view")
 
-            # set xlsx_use_labels = True inside API view to enable labels
+            # Set `xlsx_use_labels = True` inside the API View to enable labels.
             use_labels = getattr(drf_view, "xlsx_use_labels", False)
 
             # A list of header keys to ignore in our export
             self.ignore_headers = getattr(drf_view, "xlsx_ignore_headers", [])
 
-            # set dict named xlsx_use_labels inside API View. i.e. { True: 'Yes', False: 'No' }
+            # Create a mapping dict named `xlsx_boolean_labels` inside the API View.
+            # I.e.: xlsx_boolean_labels: {True: "Yes", False: "No"}
             self.boolean_display = getattr(drf_view, "xlsx_boolean_labels", None)
 
-            # set dict named xlsx_date_format_mappings with headers as keys and formatting as value. i.e. { 'created_at': '%d.%m.%Y, %H:%M' }
+            # set dict named xlsx_date_format_mappings with headers as keys and
+            # formatting as value. i.e. { 'created_at': '%d.%m.%Y, %H:%M' }
             self.date_format_mappings = getattr(
                 drf_view, "xlsx_date_format_mappings", None
             )
 
-            # Map a specific key to a column (i.e. if the field returns a json) or pass a function to format the value
-            # Example with key: { 'custom_choice': 'custom_choice.display' }, showing 'display' in the 'custom_choice' col
-            # Example with function { 'custom_choice': custom_func }, passing the value of 'custom_choice' to 'custom_func', allowing for formatting logic
+            # Map a specific key to a column (I.e. if the field returns a json) or pass
+            # a function to format the value
+            # Example with key:
+            # {"custom_choice": "custom_choice.display"}, showing 'display' in the
+            # 'custom_choice' col
+            # Example with function:
+            # {"custom_choice": custom_func }, passing the value of 'custom_choice' to
+            # 'custom_func', allowing for formatting logic
             self.custom_mappings = getattr(drf_view, "xlsx_custom_mappings", None)
 
             self.xlsx_header_dict = self._flatten_serializer_keys(
@@ -209,9 +217,8 @@ class XLSXRenderer(BaseRenderer):
         use_labels=False,
     ):
         """
-        Iterate through serializer fields, recursively when field is a nested serializer
+        Iterate through serializer fields recursively when field is a nested serializer.
         """
-
         def _get_label(parent_label, label_sep, obj):
             if getattr(v, "label", None):
                 if parent_label:
@@ -228,7 +235,8 @@ class XLSXRenderer(BaseRenderer):
             # Skip headers we want to ignore
             if new_key in self.ignore_headers:
                 continue
-            # Iterate through fields if field is a serializer. Check for labels and append if use_labels is True. Fallback to keys
+            # Iterate through fields if field is a serializer. Check for labels and
+            # append if `use_labels` is True. Fallback to using keys.
             if isinstance(v, Serializer):
                 if use_labels and getattr(v, "label", None):
                     _header_dict.update(
