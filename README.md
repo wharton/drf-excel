@@ -7,7 +7,7 @@
 It may work with earlier versions, but has been tested with the following:
 
 * Python >= 3.6
-* Django >= 1.11
+* Django >= 2.2
 * Django REST Framework >= 3.6
 * OpenPyXL >= 2.4
 
