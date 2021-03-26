@@ -86,7 +86,7 @@ class XLSXRenderer(BaseRenderer):
         Render `data` into XLSX workbook, returning a workbook.
         """
         if not self._check_validatation_data(data):
-            return self._json_format_response(data)
+            return json.dumps(data)
 
         if data is None:
             return bytes()
@@ -219,7 +219,7 @@ class XLSXRenderer(BaseRenderer):
                 else:
                     return str(v.label)
             else:
-                False
+                return False
 
         _header_dict = {}
         _fields = serializer.get_fields()
@@ -290,9 +290,6 @@ class XLSXRenderer(BaseRenderer):
             else:
                 _append_item(new_key, v)
         return dict(items)
-
-    def _json_format_response(self, response_data):
-        return json.dumps(response_data)
 
     def _make_body(self, row, row_count):
         column_count = 0
