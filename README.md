@@ -180,14 +180,14 @@ This package is maintained by the staff of [Wharton Research Data Services](http
 
 ## Contributors (Thank You!)
 
-* [Pavel Bryantsev](https://github.com/Tigven)
+* [Armaan Tobaccowalla](https://github.com/ArmaanT)
+* [Davis Haupt](https://github.com/davish)
+* [Eric Wang](https://github.com/ezwang)
 * [Felipe Schmitt](https://github.com/fsschmitt)
 * [ffruit](https://github.com/frruit)
+* [Gonzalo Ayuso](https://github.com/gonzalo123)
+* [Nick Kozhenin](https://github.com/mast22)
+* [Pavel Bryantsev](https://github.com/Tigven)
 * [Pavel Tolstolytko](https://github.com/eshikvtumane)
 * [Thomas Willems](https://github.com/willtho89)
-* [Davis Haupt](https://github.com/davish)
-* [Armaan Tobaccowalla](https://github.com/ArmaanT)
-* [Eric Wang](https://github.com/ezwang)
-* [Nick Kozhenin](https://github.com/mast22)
-* [Gonzalo Ayuso](https://github.com/gonzalo123)
-
+* [Tim](https://github.com/Shin--/)
