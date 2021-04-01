@@ -93,7 +93,6 @@ class XLSXRenderer(BaseRenderer):
 
         wb = Workbook()
         self.ws = wb.active
-
         results = data["results"] if "results" in data else data
 
         # Take header and column_header params from view
@@ -219,14 +218,11 @@ class XLSXRenderer(BaseRenderer):
         """
         Iterate through serializer fields recursively when field is a nested serializer.
         """
-        def _get_label(parent_label, label_sep, obj):
-            if getattr(v, "label", None):
-                if parent_label:
-                    return f"{parent_label}{label_sep}{v.label}"
-                else:
-                    return str(v.label)
+        def _get_label(parent_label, label_sep):
+            if parent_label:
+                return f"{parent_label}{label_sep}{label}"
             else:
-                return False
+                return str(label)
 
         _header_dict = {}
         _fields = serializer.get_fields()
@@ -238,12 +234,13 @@ class XLSXRenderer(BaseRenderer):
             # Iterate through fields if field is a serializer. Check for labels and
             # append if `use_labels` is True. Fallback to using keys.
             if isinstance(v, Serializer):
-                if use_labels and getattr(v, "label", None):
+                label = getattr(v, "help_text", None) or getattr(v, "label", None)
+                if use_labels and label:
                     _header_dict.update(
                         self._flatten_serializer_keys(
                             v,
                             k,
-                            _get_label(parent_label, label_sep, v),
+                            _get_label(parent_label, label_sep),
                             key_sep,
                             list_sep,
                             label_sep,
@@ -257,8 +254,9 @@ class XLSXRenderer(BaseRenderer):
                         )
                     )
             elif isinstance(v, Field):
-                if use_labels and getattr(v, "label", None):
-                    _header_dict[new_key] = _get_label(parent_label, label_sep, v)
+                label = getattr(v, "help_text", None) or getattr(v, "label", None)
+                if use_labels and label:
+                    _header_dict[new_key] = _get_label(parent_label, label_sep)
                 else:
                     _header_dict[new_key] = new_key
         return _header_dict
