@@ -141,7 +141,7 @@ class XLSXRenderer(BaseRenderer):
             # Map a specific key to a column (I.e. if the field returns a json) or pass
             # a function to format the value
             # Example with key:
-            # {"custom_choice": "custom_choice.display"}, showing 'display' in the
+            # {"custom_choice": "display"}, showing 'display' in the
             # 'custom_choice' col
             # Example with function:
             # {"custom_choice": custom_func }, passing the value of 'custom_choice' to

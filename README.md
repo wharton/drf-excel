@@ -168,7 +168,62 @@ class ExampleSerializer(serializers.Serializer):
         return color_map.get(instance.alarm_level, 'FFFFFFFF')
 ```
 
-## Release Notes
+# Controlling XLSX headers and values
+
+## Use Serializer Field labels as header names
+
+By default, headers will use the same 'names' as they are returned by the API. This can be changed by setting `xlsx_use_labels = True` inside your API View. 
+
+Instead of using the field names, the export will use the labels as they are defined inside your Serializer. A serializer field defined as `title = serializers.CharField(label=_("Some title"))` would return `Some title` instead of `title`, also supporting translations. If no label is set, it will fall back to using `title`.
+
+
+## Ignore fields
+
+By default, all fields are exported, but you might want to exclude some fields from your export. To do so, you can set an array with fields you want to exclude: `xlsx_ignore_headers = [<excluded fields>]`.
+
+This also works with nested fields, separated with a dot (i.e. `icon.url`).
+
+
+## Name boolean values
+
+`True` and `False` as values for boolean fields are not always the best representation and don't support translation. This can be controlled with `xlsx_boolean_labels`. 
+
+`xlsx_boolean_labels = {True: _('Yes'), False: _('No')}` will replace `True` with `Yes` and `False` with `No`.
+
+
+## Format dates
+
+To format dates differently than what DRF returns (eg. 2013-01-29T12:34:56.000000Z) `xlsx_date_format_mappings` takes a ´dict` with the field name as its key and the date(time) format as its value:
+
+```    
+xlsx_date_format_mappings = {
+    'created_at': '%d.%m.%Y %H:%M',
+    'updated_at': '%d.%m.%Y %H:%M'
+}
+```
+
+
+## Custom mappings
+
+Assuming you have a field that returns a `dict` instead of a simple `str`, you might not want to return the whole object but only a value of it. Let's say `status` returns `{ value: 1, display: 'Active' }`. To return the `display` value in the `status` column, we can do this:
+```
+xlsx_custom_mappings = {
+    'status': 'display'
+}
+```
+A probably more common case is that you want to change how a value is formatted. `xlsx_custom_mappings` also takes functions as values. Assuming we have a field `description`, and for some strange reason want to reverse the text, we can do this:
+
+```
+def reverse_text(val):
+    return val[::-1]
+
+xlsx_custom_mappings = {
+    'description': reverse_text
+}
+```
+
+
+# Release Notes
 
 Release notes are [available on GitHub](https://github.com/wharton/drf-renderer-xlsx/releases).
 
