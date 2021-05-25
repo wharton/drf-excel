@@ -191,9 +191,9 @@ class XLSXRenderer(BaseRenderer):
         # Make body
         self.body = get_attribute(renderer_context["view"], "body", {})
         self.body_style = get_style_from_dict(self.body.get("style"), "body_style")
-        if isinstance(results, ReturnDict):
+        if isinstance(results, dict):
             self._make_body(results, row_count)
-        elif isinstance(results, ReturnList):
+        elif isinstance(results, list):
             for row in results:
                 self._make_body(row, row_count)
                 row_count += 1
