@@ -253,7 +253,7 @@ class XLSXRenderer(BaseRenderer):
                 else:
                     _header_dict.update(
                         self._flatten_serializer_keys(
-                            v, k, key_sep=key_sep, list_sep=list_sep
+                            v, k, key_sep=key_sep, list_sep=list_sep, label_sep=label_sep, use_labels=use_labels
                         )
                     )
             elif isinstance(v, Field):
