@@ -257,6 +257,8 @@ class XLSXRenderer(BaseRenderer):
                             new_key,
                             key_sep=key_sep,
                             list_sep=list_sep,
+                            label_sep=label_sep,
+                            use_labels=use_labels,
                         )
                     )
             elif isinstance(v, Field):
