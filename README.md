@@ -241,6 +241,7 @@ This package is maintained by the staff of [Wharton Research Data Services](http
 * [Felipe Schmitt](https://github.com/fsschmitt)
 * [ffruit](https://github.com/frruit)
 * [Gonzalo Ayuso](https://github.com/gonzalo123)
+* [LeeHanYeong](https://github.com/LeeHanYeong)
 * [Nick Kozhenin](https://github.com/mast22)
 * [paveloder](https://github.com/paveloder)
 * [Pavel Bryantsev](https://github.com/Tigven)
