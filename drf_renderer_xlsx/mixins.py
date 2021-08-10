@@ -1,4 +1,5 @@
 from rest_framework.response import Response
+from urllib.parse import quote
 
 
 class XLSXFileMixin(object):
@@ -27,7 +28,7 @@ class XLSXFileMixin(object):
             isinstance(response, Response)
             and response.accepted_renderer.format == "xlsx"
         ):
-            response["content-disposition"] = "attachment; filename={}".format(
-                self.get_filename(),
+            response["content-disposition"] = "attachment; filename*=utf-8''{}".format(
+                quote(self.get_filename()),
             )
         return response
