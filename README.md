@@ -265,9 +265,10 @@ xlsx_custom_mappings = {
 
 Release notes are [available on GitHub](https://github.com/wharton/drf-renderer-xlsx/releases).
 
-## Maintainer
+## Maintainers
 
 * [Timothy Allen](https://github.com/FlipperPA) at [The Wharton School](https://github.com/wharton)
+* [Thomas Willems](https://github.com/willtho89)
 
 ### We are looking for someone to help be a maintainer! This involves reviewing Pull Requests and releasing new versions. If you use this package frequently and are interested in helping, please open an issue to let me know.
 
@@ -286,5 +287,4 @@ This package is maintained by the staff of [Wharton Research Data Services](http
 * [paveloder](https://github.com/paveloder)
 * [Pavel Bryantsev](https://github.com/Tigven)
 * [Pavel Tolstolytko](https://github.com/eshikvtumane)
-* [Thomas Willems](https://github.com/willtho89)
 * [Tim](https://github.com/Shin--/)
