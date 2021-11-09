@@ -163,14 +163,16 @@ class XLSXRenderer(BaseRenderer):
             self.xlsx_header_dict = self._flatten_serializer_keys(
                 drf_view.get_serializer(), use_labels=use_labels
             )
-
-            custom_header_dict = {
-                key: self.custom_cols[key].get('label', None) or key 
-                for key in self.custom_cols.keys()
-            }
-            self.combined_header_dict = dict(
-                list(self.xlsx_header_dict.items()) + list(custom_header_dict.items())
-            )
+            if self.custom_cols:
+                custom_header_dict = {
+                    key: self.custom_cols[key].get('label', None) or key
+                    for key in self.custom_cols.keys()
+                }
+                self.combined_header_dict = dict(
+                    list(self.xlsx_header_dict.items()) + list(custom_header_dict.items())
+                )
+            else:
+                self.combined_header_dict = self.xlsx_header_dict
 
             for column_name, column_label in self.combined_header_dict.items():
                 if column_name == "row_color":
