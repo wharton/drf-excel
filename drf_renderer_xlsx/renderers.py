@@ -102,6 +102,7 @@ class XLSXRenderer(BaseRenderer):
 
         # Take header and column_header params from view
         header = get_attribute(renderer_context["view"], "header", {})
+        use_header = header and header.get("use_header", True)
         self.ws.title = header.get("tab_title", "Report")
         header_title = header.get("header_title", "Report")
         img_addr = header.get("img")
@@ -116,7 +117,7 @@ class XLSXRenderer(BaseRenderer):
         )
         column_count = 0
         row_count = 1
-        if header:
+        if use_header:
             row_count += 1
         # Make column headers
         column_titles = column_header.get("titles", [])
@@ -144,7 +145,7 @@ class XLSXRenderer(BaseRenderer):
 
             # Set dict of additional columns. Can be useful when wanting to add columns
             # that don't exist in the API response. For example, you could want to
-            # show values of a dict in individidual cols. Takes key, an optional label 
+            # show values of a dict in individidual cols. Takes key, an optional label
             # and value than can be callable
             # Example:
             # {"Additional Col": { label: "Something (optional)", value: my_function }}
@@ -189,7 +190,7 @@ class XLSXRenderer(BaseRenderer):
             self.ws.row_dimensions[row_count].height = column_header.get("height", 45)
 
         # Set the header row
-        if header:
+        if use_header:
             last_col_letter = "G"
             if column_count:
                 last_col_letter = get_column_letter(column_count)
