@@ -126,10 +126,12 @@ def get_header(self):
     datetime_format = "%H:%M:%S %d.%m.%Y"
     return {
         'tab_title': 'MyReport',
+        'use_header': True,  # show the header_title 
         'header_title': 'Report from {} to {}'.format(
             starttime.strftime(datetime_format),
             endtime.strftime(datetime_format),
         ),
+        'tab_title': 'Report',  # title of tab/workbook
         'height': 45,
         'img': 'app/images/MyLogo.png',
         'style': {
@@ -286,3 +288,4 @@ This package was created by the staff of [Wharton Research Data Services](https:
 * [Pavel Bryantsev](https://github.com/Tigven)
 * [Pavel Tolstolytko](https://github.com/eshikvtumane)
 * [Tim](https://github.com/Shin--/)
+* [YunpengZhan](https://github.com/runningzyp)
