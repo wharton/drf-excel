@@ -330,7 +330,7 @@ class XLSXRenderer(BaseRenderer):
                 else:
                     # Flatten the array into a comma separated string to fit
                     # in a single spreadsheet column
-                    _append_item(new_key, list_sep.join(v))
+                    _append_item(new_key, list_sep.join(map(str,v)))
             elif self.boolean_display and type(v) is bool:
                 _append_item(new_key, str(self.boolean_display.get(v, v)))
             else:
