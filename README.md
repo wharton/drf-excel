@@ -126,10 +126,12 @@ def get_header(self):
     datetime_format = "%H:%M:%S %d.%m.%Y"
     return {
         'tab_title': 'MyReport',
+        'use_header': True,  # show the header_title 
         'header_title': 'Report from {} to {}'.format(
             starttime.strftime(datetime_format),
             endtime.strftime(datetime_format),
         ),
+        'tab_title': 'Report',  # title of tab/workbook
         'height': 45,
         'img': 'app/images/MyLogo.png',
         'style': {
@@ -203,6 +205,44 @@ xlsx_date_format_mappings = {
 ```
 
 
+## Custom columns
+
+You might find yourself explicitly returning a dict in your API response and would like to use its data to display additional columns. This can be done by passing `xlsx_custom_cols`.
+```
+xlsx_custom_cols = {
+    'my_custom_col.val1.title': {
+        'label': 'Custom column!',
+        'formatter': custom_value_formatter
+    }
+}
+
+# Example function:
+def custom_value_formatter(val):
+    return val + '!!!'
+
+# Example response:
+{ 
+    results: [
+        {
+            title: 'XLSX renderer',
+            url: 'https://github.com/wharton/drf-renderer-xlsx'
+            returned_dict: {
+                val1: {
+                    title: 'Sometimes'
+                },
+                val2: {
+                    title: 'There is no way around'
+                }
+            }
+        }
+    ]
+}
+```
+
+When no `label` is passed, `drf-renderer-xlsx` will display the key name in the header.
+`formatter` is also optional and accepts a function, which will then receive the value it is mapped to (it would receive "Sometimes" and return "Sometimes!!!" in our example).
+
+
 ## Custom mappings
 
 Assuming you have a field that returns a `dict` instead of a simple `str`, you might not want to return the whole object but only a value of it. Let's say `status` returns `{ value: 1, display: 'Active' }`. To return the `display` value in the `status` column, we can do this:
@@ -227,11 +267,12 @@ xlsx_custom_mappings = {
 
 Release notes are [available on GitHub](https://github.com/wharton/drf-renderer-xlsx/releases).
 
-## Maintainer
+## Maintainers
 
 * [Timothy Allen](https://github.com/FlipperPA) at [The Wharton School](https://github.com/wharton)
+* [Thomas Willems](https://github.com/willtho89)
 
-This package is maintained by the staff of [Wharton Research Data Services](https://wrds.wharton.upenn.edu/). We are thrilled that [The Wharton School](https://www.wharton.upenn.edu/) allows us a certain amount of time to contribute to open-source projects. We add features as they are necessary for our projects, and try to keep up with Issues and Pull Requests as best we can. Due to constraints of time (our full time jobs!), Feature Requests without a Pull Request may not be implemented, but we are always open to new ideas and grateful for contributions and our package users.
+This package was created by the staff of [Wharton Research Data Services](https://wrds.wharton.upenn.edu/). We are thrilled that [The Wharton School](https://www.wharton.upenn.edu/) allows us a certain amount of time to contribute to open-source projects. We add features as they are necessary for our projects, and try to keep up with Issues and Pull Requests as best we can. Due to constraints of time (our full time jobs!), Feature Requests without a Pull Request may not be implemented, but we are always open to new ideas and grateful for contributions and our package users.
 
 ## Contributors (Thank You!)
 
@@ -241,8 +282,10 @@ This package is maintained by the staff of [Wharton Research Data Services](http
 * [Felipe Schmitt](https://github.com/fsschmitt)
 * [ffruit](https://github.com/frruit)
 * [Gonzalo Ayuso](https://github.com/gonzalo123)
+* [LeeHanYeong](https://github.com/LeeHanYeong)
 * [Nick Kozhenin](https://github.com/mast22)
+* [paveloder](https://github.com/paveloder)
 * [Pavel Bryantsev](https://github.com/Tigven)
 * [Pavel Tolstolytko](https://github.com/eshikvtumane)
-* [Thomas Willems](https://github.com/willtho89)
 * [Tim](https://github.com/Shin--/)
+* [YunpengZhan](https://github.com/runningzyp)

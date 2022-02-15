@@ -9,7 +9,7 @@ class XLSXFileMixin(object):
 
     filename = "export.xlsx"
 
-    def get_filename(self):
+    def get_filename(self, request=None, *args, **kwargs):
         """
         Returns a custom filename for the spreadsheet.
         """
@@ -28,6 +28,6 @@ class XLSXFileMixin(object):
             and response.accepted_renderer.format == "xlsx"
         ):
             response["content-disposition"] = "attachment; filename={}".format(
-                self.get_filename(),
+                self.get_filename(request=request, *args, **kwargs),
             )
         return response
