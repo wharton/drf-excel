@@ -1,19 +1,26 @@
+import datetime
 import json
 
 from collections.abc import MutableMapping, Iterable
-from django.utils.dateparse import parse_datetime, parse_date
+from django.conf import settings as django_settings
+from django.utils.dateparse import parse_datetime, parse_date, parse_time
 from openpyxl import Workbook
 from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
 from openpyxl.styles import PatternFill, Border, Side, Alignment, Font, NamedStyle
 from openpyxl.drawing.image import Image
 from openpyxl.utils import get_column_letter
 from openpyxl.writer.excel import save_virtual_workbook
-from rest_framework.fields import Field
+from rest_framework import ISO_8601
+from rest_framework.fields import DateField, DateTimeField, Field, TimeField
 from rest_framework.renderers import BaseRenderer
 from rest_framework.serializers import Serializer
-from rest_framework.utils.serializer_helpers import ReturnDict, ReturnList
+from rest_framework.settings import api_settings as drf_settings
 
 ESCAPE_CHARS = ('=', '-', '+', '@', '\t', '\r', '\n',)
+
+def get_setting(key):
+    return getattr(django_settings, 'DRF_RENDERER_XLSX_'+key, None)
+
 
 def get_style_from_dict(style_dict, style_name):
     """
@@ -77,9 +84,10 @@ class XLSXRenderer(BaseRenderer):
 
     media_type = "application/xlsx"
     format = "xlsx"
-    xlsx_header_dict = {}
+    combined_header_dict = {}
+    fields_dict = {}
     ignore_headers = []
-    boolean_labels = None
+    boolean_display = None
     date_format_mappings = None
     custom_mappings = None
     custom_cols = None
@@ -161,7 +169,9 @@ class XLSXRenderer(BaseRenderer):
             # 'custom_func', allowing for formatting logic
             self.custom_mappings = getattr(drf_view, "xlsx_custom_mappings", dict())
 
-            self.xlsx_header_dict = self._flatten_serializer_keys(
+            self.fields_dict = self._serializer_fields(drf_view.get_serializer())
+
+            xlsx_header_dict = self._flatten_serializer_keys(
                 drf_view.get_serializer(), use_labels=use_labels
             )
             if self.custom_cols:
@@ -170,10 +180,10 @@ class XLSXRenderer(BaseRenderer):
                     for key in self.custom_cols.keys()
                 }
                 self.combined_header_dict = dict(
-                    list(self.xlsx_header_dict.items()) + list(custom_header_dict.items())
+                    list(xlsx_header_dict.items()) + list(custom_header_dict.items())
                 )
             else:
-                self.combined_header_dict = self.xlsx_header_dict
+                self.combined_header_dict = xlsx_header_dict
 
             for column_name, column_label in self.combined_header_dict.items():
                 if column_name == "row_color":
@@ -228,6 +238,16 @@ class XLSXRenderer(BaseRenderer):
         if detail_key in data:
             return False
         return True
+
+    def _serializer_fields(self, serializer, parent_key="", key_sep=".", list_sep=", "):
+        _fields_dict = {}
+        for k, v in serializer.get_fields().items():
+            new_key = f"{parent_key}{key_sep}{k}" if parent_key else k
+            if isinstance(v, Serializer):
+                _fields_dict.update(self._serializer_fields(v, new_key, key_sep, list_sep))
+            elif isinstance(v, Field):
+                _fields_dict[new_key] = v
+        return _fields_dict
 
     def _flatten_serializer_keys(
         self,
@@ -296,14 +316,11 @@ class XLSXRenderer(BaseRenderer):
         def _append_item(key, value):
             if self.date_format_mappings and key in self.date_format_mappings:
                 try:
-                    date = parse_datetime(value)
-                    if date is None:
-                        date = parse_date(value)
-                    items.append((key, date.strftime(self.date_format_mappings[key])))
+                    items.append((key, self._process_date(key, value, self.date_format_mappings[key])))
                     return
                 except TypeError:
                     pass
-            items.append((key, value))
+            items.append((key, self._process_date(key, value)))
 
         items = []
         for k, v in data.items():
@@ -370,3 +387,33 @@ class XLSXRenderer(BaseRenderer):
             for r in cell_range:
                 for c in r:
                     c.fill = fill
+
+    def _process_date(self, key, value, dt_format=None):
+        field = self.fields_dict.get(key)
+        # We have to try to parse the date first (since drf already formatted it) then format it
+        try:
+            if isinstance(field, DateTimeField):
+                return self._parse_and_format_type(value, 'DATETIME_FORMAT', parse_datetime, dt_format)
+            elif isinstance(field, DateField):
+                return self._parse_and_format_type(value, 'DATE_FORMAT', parse_date, dt_format)
+            elif isinstance(field, TimeField):
+                return self._parse_and_format_type(value, 'TIME_FORMAT', parse_time, dt_format)
+        except (ValueError, TypeError, KeyError):
+            pass
+        return value
+
+    def _parse_and_format_type(self, value, setting_format, iso_parse_func, f_format=None):
+        # Parse format is DRF output format: DATETIME_FORMAT, DATE_FORMAT or TIME_FORMAT
+        parse_format = getattr(drf_settings, setting_format)
+        # Our output format is either the one provided, our global setting, or finally DRF format
+        output_format = f_format or get_setting(setting_format) or parse_format
+        if parse_format == output_format:
+            # No formatting to do since it's the same format
+            return value
+        else:
+            # Use the provided iso parse function for the special case ISO_8601
+            if parse_format.lower() == ISO_8601:
+                return iso_parse_func(value).strftime(output_format)
+            # Otherwise, just parse and format!
+            else:
+                return datetime.datetime.strptime(value, parse_format).strftime(output_format)
