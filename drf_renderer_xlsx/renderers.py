@@ -1,7 +1,7 @@
 import json
 
 from collections.abc import MutableMapping, Iterable
-from django.utils.dateparse import parse_datetime
+from django.utils.dateparse import parse_datetime, parse_date
 from openpyxl import Workbook
 from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
 from openpyxl.styles import PatternFill, Border, Side, Alignment, Font, NamedStyle
@@ -297,6 +297,8 @@ class XLSXRenderer(BaseRenderer):
             if self.date_format_mappings and key in self.date_format_mappings:
                 try:
                     date = parse_datetime(value)
+                    if date is None:
+                        date = parse_date(value)
                     items.append((key, date.strftime(self.date_format_mappings[key])))
                     return
                 except TypeError:
