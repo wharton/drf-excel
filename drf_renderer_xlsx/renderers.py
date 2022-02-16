@@ -1,25 +1,36 @@
-import datetime
 import json
+from collections.abc import Iterable, MutableMapping
+from typing import Dict
 
-from collections.abc import MutableMapping, Iterable
-from django.conf import settings as django_settings
-from django.utils.dateparse import parse_datetime, parse_date, parse_time
 from openpyxl import Workbook
-from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
-from openpyxl.styles import PatternFill, Border, Side, Alignment, Font, NamedStyle
 from openpyxl.drawing.image import Image
+from openpyxl.styles import Alignment, Border, Font, NamedStyle, PatternFill, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.writer.excel import save_virtual_workbook
-from rest_framework import ISO_8601
-from rest_framework.fields import DateField, DateTimeField, Field, TimeField
+from rest_framework.fields import (
+    BooleanField,
+    DateField,
+    DateTimeField,
+    DecimalField,
+    Field,
+    FloatField,
+    IntegerField,
+    ListField,
+    NullBooleanField,
+    TimeField,
+)
 from rest_framework.renderers import BaseRenderer
 from rest_framework.serializers import Serializer
-from rest_framework.settings import api_settings as drf_settings
+
+from drf_renderer_xlsx.fields import (
+    XLSXBooleanField,
+    XLSXDateField,
+    XLSXField,
+    XLSXListField,
+    XLSXNumberField,
+)
 
 ESCAPE_CHARS = ('=', '-', '+', '@', '\t', '\r', '\n',)
-
-def get_setting(key):
-    return getattr(django_settings, 'DRF_RENDERER_XLSX_'+key, None)
 
 
 def get_style_from_dict(style_dict, style_name):
@@ -89,15 +100,18 @@ class XLSXRenderer(BaseRenderer):
     ignore_headers = []
     boolean_display = None
     date_format_mappings = None
+    number_format_mappings = None
     custom_mappings = None
     custom_cols = None
     sanitize_fields = True  # prepend possibly malicious values with "'"
+    list_sep = ", "
+    body_style = None
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
         """
         Render `data` into XLSX workbook, returning a workbook.
         """
-        if not self._check_validatation_data(data):
+        if not self._check_validation_data(data):
             return json.dumps(data)
 
         if data is None:
@@ -146,18 +160,24 @@ class XLSXRenderer(BaseRenderer):
             self.boolean_display = getattr(drf_view, "xlsx_boolean_labels", None)
 
             # Set dict named xlsx_date_format_mappings with headers as keys and
-            # formatting as value. i.e. { 'created_at': '%d.%m.%Y, %H:%M' }
+            # formatting as value. i.e. { 'created_at': 'yyyy-mm-dd h:mm:ss' }
             self.date_format_mappings = getattr(
-                drf_view, "xlsx_date_format_mappings", None
+                drf_view, "xlsx_date_format_mappings", dict()
+            )
+
+            # Set dict named xlsx_number_format_mappings with headers as keys and
+            # formatting as value. i.e. { 'cost': '"$"#,##0.00_-' }
+            self.number_format_mappings = getattr(
+                drf_view, "xlsx_number_format_mappings", dict()
             )
 
             # Set dict of additional columns. Can be useful when wanting to add columns
             # that don't exist in the API response. For example, you could want to
-            # show values of a dict in individidual cols. Takes key, an optional label
+            # show values of a dict in individual cols. Takes key, an optional label
             # and value than can be callable
             # Example:
-            # {"Additional Col": { label: "Something (optional)", value: my_function }}
-            self.custom_cols = getattr(drf_view, "xlsx_custom_cols", None)
+            # {"Additional Col": { label: "Something (optional)", formatter: my_function }}
+            self.custom_cols = getattr(drf_view, "xlsx_custom_cols", dict())
 
             # Map a specific key to a column (I.e. if the field returns a json) or pass
             # a function to format the value
@@ -217,34 +237,34 @@ class XLSXRenderer(BaseRenderer):
                 col_letter = get_column_letter(i + 1)
                 self.ws.column_dimensions[col_letter].width = width
         else:
-            for self.ws_column in range(1, column_count + 1):
-                col_letter = get_column_letter(self.ws_column)
+            for ws_column in range(1, column_count + 1):
+                col_letter = get_column_letter(ws_column)
                 self.ws.column_dimensions[col_letter].width = column_width
 
         # Make body
-        self.body = get_attribute(renderer_context["view"], "body", {})
-        self.body_style = get_style_from_dict(self.body.get("style"), "body_style")
+        body = get_attribute(renderer_context["view"], "body", {})
+        self.body_style = get_style_from_dict(body.get("style"), "body_style")
         if isinstance(results, dict):
-            self._make_body(results, row_count)
+            self._make_body(body, results, row_count)
         elif isinstance(results, list):
             for row in results:
-                self._make_body(row, row_count)
+                self._make_body(body, row, row_count)
                 row_count += 1
 
         return save_virtual_workbook(wb)
 
-    def _check_validatation_data(self, data):
+    def _check_validation_data(self, data):
         detail_key = "detail"
         if detail_key in data:
             return False
         return True
 
-    def _serializer_fields(self, serializer, parent_key="", key_sep=".", list_sep=", "):
+    def _serializer_fields(self, serializer, parent_key="", key_sep="."):
         _fields_dict = {}
         for k, v in serializer.get_fields().items():
             new_key = f"{parent_key}{key_sep}{k}" if parent_key else k
             if isinstance(v, Serializer):
-                _fields_dict.update(self._serializer_fields(v, new_key, key_sep, list_sep))
+                _fields_dict.update(self._serializer_fields(v, new_key, key_sep))
             elif isinstance(v, Field):
                 _fields_dict[new_key] = v
         return _fields_dict
@@ -312,59 +332,18 @@ class XLSXRenderer(BaseRenderer):
 
         return _header_dict
 
-    def _flatten_data(self, data, parent_key="", key_sep=".", list_sep=", "):
-        def _append_item(key, value):
-            if self.date_format_mappings and key in self.date_format_mappings:
-                try:
-                    items.append((key, self._process_date(key, value, self.date_format_mappings[key])))
-                    return
-                except TypeError:
-                    pass
-            items.append((key, self._process_date(key, value)))
-
+    def _flatten_data(self, data, parent_key="", key_sep=".") -> Dict[str, XLSXField]:
         items = []
         for k, v in data.items():
             new_key = f"{parent_key}{key_sep}{k}" if parent_key else k
-            if self.custom_mappings and new_key in self.custom_mappings:
-                custom_mapping = self.custom_mappings[new_key]
-                if type(custom_mapping) is str:
-                    _append_item(new_key, v.get(custom_mapping))
-                elif callable(custom_mapping):
-                    _append_item(new_key, custom_mapping(v))
-            elif self.custom_cols and new_key in self.custom_cols:
-                custom_col_value = self.custom_cols[new_key].get('formatter', None)
-                val = v
-                if custom_col_value and callable(custom_col_value):
-                    val = custom_col_value(v)
-                if self.boolean_display and type(val) is bool:
-                    _append_item(new_key, str(self.boolean_display.get(val, val)))
-                else:
-                    _append_item(new_key, val)
-            elif isinstance(v, MutableMapping):
+            if isinstance(v, MutableMapping):
                 items.extend(self._flatten_data(v, new_key, key_sep=key_sep).items())
-            elif isinstance(v, Iterable) and not isinstance(v, str):
-                if len(v) > 0 and isinstance(v[0], Iterable):
-                    # array of array; write as json
-                    _append_item(new_key, json.dumps(v))
-                else:
-                    # Flatten the array into a comma separated string to fit
-                    # in a single spreadsheet column
-                    _append_item(new_key, list_sep.join(map(str,v)))
-            elif self.boolean_display and type(v) is bool:
-                _append_item(new_key, str(self.boolean_display.get(v, v)))
             else:
-                _append_item(new_key, v)
+                xlsx_field = self._drf_to_xlsx_field(key=new_key, value=v)
+                items.append((new_key, xlsx_field))
         return dict(items)
 
-    def _sanitize_value(self, raw_value):
-        # prepend ' if raw_value is starting with possible malicious char
-        if self.sanitize_fields and raw_value:
-            str_value = str(raw_value)
-            str_value = ILLEGAL_CHARACTERS_RE.sub('', str_value)   # remove ILLEGAL_CHARACTERS so it doesn't crash
-            return "'" + str_value if str_value.startswith(ESCAPE_CHARS) else str_value
-        return raw_value
-
-    def _make_body(self, row, row_count):
+    def _make_body(self, body, row, row_count):
         column_count = 0
         row_count += 1
         flattened_row = self._flatten_data(row)
@@ -372,12 +351,9 @@ class XLSXRenderer(BaseRenderer):
             if header_key == "row_color":
                 continue
             column_count += 1
-            sanitized_value = self._sanitize_value(flattened_row.get(header_key))
-            cell = self.ws.cell(
-                row=row_count, column=column_count, value=sanitized_value
-            )
-            cell.style = self.body_style
-        self.ws.row_dimensions[row_count].height = self.body.get("height", 40)
+            field = flattened_row.get(header_key)
+            field.cell(self.ws, row_count, column_count) if field else self.ws.cell(row_count, column_count)
+        self.ws.row_dimensions[row_count].height = body.get("height", 40)
         if "row_color" in row:
             last_letter = get_column_letter(column_count)
             cell_range = self.ws[
@@ -388,32 +364,24 @@ class XLSXRenderer(BaseRenderer):
                 for c in r:
                     c.fill = fill
 
-    def _process_date(self, key, value, dt_format=None):
+    def _drf_to_xlsx_field(self, key, value) -> XLSXField:
         field = self.fields_dict.get(key)
-        # We have to try to parse the date first (since drf already formatted it) then format it
-        try:
-            if isinstance(field, DateTimeField):
-                return self._parse_and_format_type(value, 'DATETIME_FORMAT', parse_datetime, dt_format)
-            elif isinstance(field, DateField):
-                return self._parse_and_format_type(value, 'DATE_FORMAT', parse_date, dt_format)
-            elif isinstance(field, TimeField):
-                return self._parse_and_format_type(value, 'TIME_FORMAT', parse_time, dt_format)
-        except (ValueError, TypeError, KeyError):
-            pass
-        return value
-
-    def _parse_and_format_type(self, value, setting_format, iso_parse_func, f_format=None):
-        # Parse format is DRF output format: DATETIME_FORMAT, DATE_FORMAT or TIME_FORMAT
-        parse_format = getattr(drf_settings, setting_format)
-        # Our output format is either the one provided, our global setting, or finally DRF format
-        output_format = f_format or get_setting(setting_format) or parse_format
-        if parse_format == output_format:
-            # No formatting to do since it's the same format
-            return value
-        else:
-            # Use the provided iso parse function for the special case ISO_8601
-            if parse_format.lower() == ISO_8601:
-                return iso_parse_func(value).strftime(output_format)
-            # Otherwise, just parse and format!
-            else:
-                return datetime.datetime.strptime(value, parse_format).strftime(output_format)
+        kwargs = {
+            "key": key,
+            "value": value,
+            "field": field,
+            "style": self.body_style,
+            # Basically using formatter of custom col as a custom mapping
+            "mapping": self.custom_cols.get(key, {}).get("formatter") or self.custom_mappings.get(key),
+        }
+        date_format = self.date_format_mappings.get(key)
+        number_format = self.number_format_mappings.get(key)
+        if isinstance(field, BooleanField) or isinstance(field, NullBooleanField) or type(value) == bool:
+            return XLSXBooleanField(boolean_display=self.boolean_display, **kwargs)
+        elif isinstance(field, IntegerField) or isinstance(field, FloatField) or isinstance(field, DecimalField):
+            return XLSXNumberField(number_format=number_format, **kwargs)
+        elif isinstance(field, DateTimeField) or isinstance(field, DateField) or isinstance(field, TimeField):
+            return XLSXDateField(date_format=date_format, **kwargs)
+        elif isinstance(field, ListField) or isinstance(value, Iterable) and not isinstance(value, str):
+            return XLSXListField(list_sep=self.list_sep, **kwargs)
+        return XLSXField(**kwargs)
