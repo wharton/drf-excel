@@ -126,15 +126,20 @@ class XLSXDateField(XLSXField):
 		if parse_format.lower() == ISO_8601:
 			return iso_parse_func(value)
 		else:
-			return datetime.datetime.strptime(value, parse_format)
+			parsed_datetime = datetime.datetime.strptime(value, parse_format)
+			if isinstance(self.drf_field, TimeField):
+				return parsed_datetime.time()
+			elif isinstance(self.drf_field, DateField):
+				return parsed_datetime.date()
+			return parsed_datetime
 
 	def init_value(self, value):
 		try:
 			if isinstance(self.drf_field, DateTimeField) and type(value) != datetime.datetime:
 				return self._parse_date(value, 'DATETIME_FORMAT', parse_datetime)
-			elif isinstance(self.drf_field, FloatField) and type(value) != datetime.date:
+			elif isinstance(self.drf_field, DateField) and type(value) != datetime.date:
 				return self._parse_date(value, 'DATE_FORMAT', parse_date)
-			elif isinstance(self.drf_field, DecimalField) and type(value) != datetime.time:
+			elif isinstance(self.drf_field, TimeField) and type(value) != datetime.time:
 				return self._parse_date(value, 'TIME_FORMAT', parse_time)
 		except:
 			return value
@@ -174,6 +179,7 @@ class XLSXBooleanField(XLSXField):
 		super().__init__(**kwargs)
 
 	def prep_value(self) -> Any:
-		if self.boolean_display:
-			return str(self.boolean_display.get(self.value, self.value))
+		boolean_display = self.boolean_display or get_setting('BOOLEAN_DISPLAY')
+		if boolean_display:
+			return str(boolean_display.get(self.value, self.value))
 		return self.value
