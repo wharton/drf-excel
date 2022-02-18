@@ -22,15 +22,7 @@ from rest_framework.fields import (
 from rest_framework.renderers import BaseRenderer
 from rest_framework.serializers import Serializer
 
-from drf_renderer_xlsx.fields import (
-    XLSXBooleanField,
-    XLSXDateField,
-    XLSXField,
-    XLSXListField,
-    XLSXNumberField,
-)
-
-ESCAPE_CHARS = ('=', '-', '+', '@', '\t', '\r', '\n',)
+from drf_renderer_xlsx.fields import XLSXBooleanField, XLSXDateField, XLSXField, XLSXListField, XLSXNumberField
 
 
 def get_style_from_dict(style_dict, style_name):
@@ -134,9 +126,7 @@ class XLSXRenderer(BaseRenderer):
         header_style = get_style_from_dict(header.get("style"), "header_style")
 
         column_header = get_attribute(renderer_context["view"], "column_header", {})
-        column_header_style = get_style_from_dict(
-            column_header.get("style"), "column_header_style"
-        )
+        column_header_style = get_style_from_dict(column_header.get("style"), "column_header_style")
         column_count = 0
         row_count = 1
         if use_header:
@@ -161,15 +151,11 @@ class XLSXRenderer(BaseRenderer):
 
             # Set dict named xlsx_date_format_mappings with headers as keys and
             # formatting as value. i.e. { 'created_at': 'yyyy-mm-dd h:mm:ss' }
-            self.date_format_mappings = getattr(
-                drf_view, "xlsx_date_format_mappings", dict()
-            )
+            self.date_format_mappings = getattr(drf_view, "xlsx_date_format_mappings", dict())
 
             # Set dict named xlsx_number_format_mappings with headers as keys and
             # formatting as value. i.e. { 'cost': '"$"#,##0.00_-' }
-            self.number_format_mappings = getattr(
-                drf_view, "xlsx_number_format_mappings", dict()
-            )
+            self.number_format_mappings = getattr(drf_view, "xlsx_number_format_mappings", dict())
 
             # Set dict of additional columns. Can be useful when wanting to add columns
             # that don't exist in the API response. For example, you could want to
@@ -191,17 +177,12 @@ class XLSXRenderer(BaseRenderer):
 
             self.fields_dict = self._serializer_fields(drf_view.get_serializer())
 
-            xlsx_header_dict = self._flatten_serializer_keys(
-                drf_view.get_serializer(), use_labels=use_labels
-            )
+            xlsx_header_dict = self._flatten_serializer_keys(drf_view.get_serializer(), use_labels=use_labels)
             if self.custom_cols:
                 custom_header_dict = {
-                    key: self.custom_cols[key].get('label', None) or key
-                    for key in self.custom_cols.keys()
+                    key: self.custom_cols[key].get("label", None) or key for key in self.custom_cols.keys()
                 }
-                self.combined_header_dict = dict(
-                    list(xlsx_header_dict.items()) + list(custom_header_dict.items())
-                )
+                self.combined_header_dict = dict(list(xlsx_header_dict.items()) + list(custom_header_dict.items()))
             else:
                 self.combined_header_dict = xlsx_header_dict
 
@@ -214,9 +195,7 @@ class XLSXRenderer(BaseRenderer):
                 else:
                     column_name_display = column_titles[column_count - 1]
 
-                self.ws.cell(
-                    row=row_count, column=column_count, value=column_name_display
-                ).style = column_header_style
+                self.ws.cell(row=row_count, column=column_count, value=column_name_display).style = column_header_style
             self.ws.row_dimensions[row_count].height = column_header.get("height", 45)
 
         # Set the header row
@@ -270,18 +249,12 @@ class XLSXRenderer(BaseRenderer):
         return _fields_dict
 
     def _flatten_serializer_keys(
-        self,
-        serializer,
-        parent_key="",
-        parent_label="",
-        key_sep=".",
-        list_sep=", ",
-        label_sep=" > ",
-        use_labels=False,
+        self, serializer, parent_key="", parent_label="", key_sep=".", list_sep=", ", label_sep=" > ", use_labels=False
     ):
         """
         Iterate through serializer fields recursively when field is a nested serializer.
         """
+
         def _get_label(parent_label, label_sep, obj):
             if getattr(v, "label", None):
                 if parent_label:
@@ -304,24 +277,13 @@ class XLSXRenderer(BaseRenderer):
                 if use_labels and getattr(v, "label", None):
                     _header_dict.update(
                         self._flatten_serializer_keys(
-                            v,
-                            new_key,
-                            _get_label(parent_label, label_sep, v),
-                            key_sep,
-                            list_sep,
-                            label_sep,
-                            use_labels,
+                            v, new_key, _get_label(parent_label, label_sep, v), key_sep, list_sep, label_sep, use_labels
                         )
                     )
                 else:
                     _header_dict.update(
                         self._flatten_serializer_keys(
-                            v,
-                            new_key,
-                            key_sep=key_sep,
-                            list_sep=list_sep,
-                            label_sep=label_sep,
-                            use_labels=use_labels,
+                            v, new_key, key_sep=key_sep, list_sep=list_sep, label_sep=label_sep, use_labels=use_labels
                         )
                     )
             elif isinstance(v, Field):
@@ -356,9 +318,7 @@ class XLSXRenderer(BaseRenderer):
         self.ws.row_dimensions[row_count].height = body.get("height", 40)
         if "row_color" in row:
             last_letter = get_column_letter(column_count)
-            cell_range = self.ws[
-                "A{}".format(row_count) : "{}{}".format(last_letter, row_count)
-            ]
+            cell_range = self.ws["A{}".format(row_count) : "{}{}".format(last_letter, row_count)]
             fill = PatternFill(fill_type="solid", start_color=row["row_color"])
             for r in cell_range:
                 for c in r:
