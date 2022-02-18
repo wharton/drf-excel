@@ -22,7 +22,7 @@ from rest_framework.fields import (
 from rest_framework.renderers import BaseRenderer
 from rest_framework.serializers import Serializer
 
-from drf_renderer_xlsx.fields import XLSXBooleanField, XLSXDateField, XLSXField, XLSXListField, XLSXNumberField
+from drf_excel.fields import XLSXBooleanField, XLSXDateField, XLSXField, XLSXListField, XLSXNumberField
 
 
 def get_style_from_dict(style_dict, style_name):
