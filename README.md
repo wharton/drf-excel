@@ -18,15 +18,15 @@ pip install drf-excel
 Then add the following to your `REST_FRAMEWORK` settings:
 
 ```python
-    REST_FRAMEWORK = {
-        ...
+REST_FRAMEWORK = {
+    ...
 
-        'DEFAULT_RENDERER_CLASSES': (
-            'rest_framework.renderers.JSONRenderer',
-            'rest_framework.renderers.BrowsableAPIRenderer',
-            'def_excel.renderers.XLSXRenderer',
-        ),
-    }
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'def_excel.renderers.XLSXRenderer',
+    ),
+}
 ```
 
 To avoid having a file streamed without a filename (which the browser will often default to the filename "download", with no extension), we need to use a mixin to override the `Content-Disposition` header. If no `filename` is provided, it will default to `export.xlsx`. For example:
