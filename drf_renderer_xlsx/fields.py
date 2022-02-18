@@ -134,13 +134,14 @@ class XLSXDateField(XLSXField):
 			return parsed_datetime
 
 	def init_value(self, value):
+		# Set tzinfo to None on datetime and time types since timezones are not supported in Excel
 		try:
 			if isinstance(self.drf_field, DateTimeField) and type(value) != datetime.datetime:
-				return self._parse_date(value, 'DATETIME_FORMAT', parse_datetime)
+				return self._parse_date(value, 'DATETIME_FORMAT', parse_datetime).replace(tzinfo=None)
 			elif isinstance(self.drf_field, DateField) and type(value) != datetime.date:
 				return self._parse_date(value, 'DATE_FORMAT', parse_date)
 			elif isinstance(self.drf_field, TimeField) and type(value) != datetime.time:
-				return self._parse_date(value, 'TIME_FORMAT', parse_time)
+				return self._parse_date(value, 'TIME_FORMAT', parse_time).replace(tzinfo=None)
 		except:
 			return value
 
