@@ -1,20 +1,18 @@
-# Django REST Framework Renderer: XLSX
+# DRF Excel: Django REST Framework Excel Spreadsheet (xlsx) Renderer
 
-`drf-renderer-xlsx` provides an XLSX renderer for Django REST Framework. It uses OpenPyXL to create the spreadsheet and returns the data.
+`drf-excel` provides an Excel spreadsheet (xlsx) renderer for Django REST Framework. It uses OpenPyXL to create the spreadsheet and provide the file to the end user.
 
-# Requirements
+## Requirements
 
-It may work with earlier versions, but has been tested with the following:
+We aim to support Django's [currently supported versions](https://www.djangoproject.com/download/), as well as:
 
-* Python >= 3.6
-* Django >= 2.2
 * Django REST Framework >= 3.6
 * OpenPyXL >= 2.4
 
-# Installation
+## Installation
 
 ```bash
-pip install drf-renderer-xlsx
+pip install drf-excel
 ```
 
 Then add the following to your `REST_FRAMEWORK` settings:
@@ -26,7 +24,7 @@ Then add the following to your `REST_FRAMEWORK` settings:
         'DEFAULT_RENDERER_CLASSES': (
             'rest_framework.renderers.JSONRenderer',
             'rest_framework.renderers.BrowsableAPIRenderer',
-            'drf_renderer_xlsx.renderers.XLSXRenderer',
+            'def_excel.renderers.XLSXRenderer',
         ),
     }
 ```
@@ -35,8 +33,8 @@ To avoid having a file streamed without a filename (which the browser will often
 
 ```python
 from rest_framework.viewsets import ReadOnlyModelViewSet
-from drf_renderer_xlsx.mixins import XLSXFileMixin
-from drf_renderer_xlsx.renderers import XLSXRenderer
+from drf_excel.mixins import XLSXFileMixin
+from drf_excel.renderers import XLSXRenderer
 
 from .models import MyExampleModel
 from .serializers import MyExampleSerializer
@@ -50,7 +48,14 @@ class MyExampleViewSet(XLSXFileMixin, ReadOnlyModelViewSet):
 
 The `XLSXFileMixin` also provides a `get_filename()` method which can be overridden, if you prefer to provide a filename programmatically instead of the `filename` attribute.
 
-# Configuring Styles 
+## Upgrading to 1.0.0
+
+To upgrade to `drf_excel` 1.0.0 from `drf_renderer_xlsx`, update your import paths:
+
+* `from drf_renderer_xlsx.mixins import XLSXFileMixin` becomes `from drf_excel.mixins import XLSXFileMixin`.
+* `def_renderer_xlsx.renderers.XLSXRenderer` becomes `def_excel.renderers.XLSXRenderer`.
+
+## Configuring Styles 
 
 Styles can be added to your worksheet header, column header row, and body rows, from view attributes `header`, `column_header`, `body`. Any arguments from [the OpenPyXL package](https://openpyxl.readthedocs.io/en/stable/styles.html) can be used for font, alignment, fill and border_side (border will always be all side of cell).   
 
@@ -170,30 +175,28 @@ class ExampleSerializer(serializers.Serializer):
         return color_map.get(instance.alarm_level, 'FFFFFFFF')
 ```
 
-# Controlling XLSX headers and values
+## Controlling XLSX headers and values
 
-## Use Serializer Field labels as header names
+### Use Serializer Field labels as header names
 
 By default, headers will use the same 'names' as they are returned by the API. This can be changed by setting `xlsx_use_labels = True` inside your API View. 
 
 Instead of using the field names, the export will use the labels as they are defined inside your Serializer. A serializer field defined as `title = serializers.CharField(label=_("Some title"))` would return `Some title` instead of `title`, also supporting translations. If no label is set, it will fall back to using `title`.
 
-
-## Ignore fields
+### Ignore fields
 
 By default, all fields are exported, but you might want to exclude some fields from your export. To do so, you can set an array with fields you want to exclude: `xlsx_ignore_headers = [<excluded fields>]`.
 
 This also works with nested fields, separated with a dot (i.e. `icon.url`).
 
-
-## Name boolean values
+### Name boolean values
 
 `True` and `False` as values for boolean fields are not always the best representation and don't support translation. This can be controlled with `xlsx_boolean_labels`. 
 
 `xlsx_boolean_labels = {True: _('Yes'), False: _('No')}` will replace `True` with `Yes` and `False` with `No`.
 
 
-## Format dates
+### Format dates
 
 To format dates differently than what DRF returns (eg. 2013-01-29T12:34:56.000000Z) `xlsx_date_format_mappings` takes a ´dict` with the field name as its key and the date(time) format as its value:
 
@@ -205,7 +208,7 @@ xlsx_date_format_mappings = {
 ```
 
 
-## Custom columns
+### Custom columns
 
 You might find yourself explicitly returning a dict in your API response and would like to use its data to display additional columns. This can be done by passing `xlsx_custom_cols`.
 ```
@@ -216,16 +219,16 @@ xlsx_custom_cols = {
     }
 }
 
-# Example function:
+### Example function:
 def custom_value_formatter(val):
     return val + '!!!'
 
-# Example response:
+### Example response:
 { 
     results: [
         {
             title: 'XLSX renderer',
-            url: 'https://github.com/wharton/drf-renderer-xlsx'
+            url: 'https://github.com/wharton/drf-excel'
             returned_dict: {
                 val1: {
                     title: 'Sometimes'
@@ -242,8 +245,7 @@ def custom_value_formatter(val):
 When no `label` is passed, `drf-renderer-xlsx` will display the key name in the header.
 `formatter` is also optional and accepts a function, which will then receive the value it is mapped to (it would receive "Sometimes" and return "Sometimes!!!" in our example).
 
-
-## Custom mappings
+### Custom mappings
 
 Assuming you have a field that returns a `dict` instead of a simple `str`, you might not want to return the whole object but only a value of it. Let's say `status` returns `{ value: 1, display: 'Active' }`. To return the `display` value in the `status` column, we can do this:
 ```
@@ -262,10 +264,9 @@ xlsx_custom_mappings = {
 }
 ```
 
+## Release Notes
 
-# Release Notes
-
-Release notes are [available on GitHub](https://github.com/wharton/drf-renderer-xlsx/releases).
+Release notes are [available on GitHub](https://github.com/wharton/drf-excel/releases).
 
 ## Maintainers
 
