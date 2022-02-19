@@ -4,7 +4,7 @@ from typing import Dict
 
 from openpyxl import Workbook
 from openpyxl.drawing.image import Image
-from openpyxl.styles import Alignment, Border, Font, NamedStyle, PatternFill, Side
+from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 from openpyxl.writer.excel import save_virtual_workbook
 from rest_framework.fields import (
@@ -23,43 +23,7 @@ from rest_framework.renderers import BaseRenderer
 from rest_framework.serializers import Serializer
 
 from drf_excel.fields import XLSXBooleanField, XLSXDateField, XLSXField, XLSXListField, XLSXNumberField
-
-
-def get_style_from_dict(style_dict, style_name):
-    """
-    Make NamedStyle instance from dictionary
-    :param style_dict: dictionary with style properties.
-           Example:    {'fill': {'fill_type'='solid',
-                                 'start_color'='FFCCFFCC'},
-                        'alignment': {'horizontal': 'center',
-                                      'vertical': 'center',
-                                      'wrapText': True,
-                                      'shrink_to_fit': True},
-                        'border_side': {'border_style': 'thin',
-                                        'color': 'FF000000'},
-                        'font': {'name': 'Arial',
-                                 'size': 14,
-                                 'bold': True,
-                                 'color': 'FF000000'}
-                        }
-    :param style_name: name of created style
-    :return: openpyxl.styles.NamedStyle instance
-    """
-    style = NamedStyle(name=style_name)
-    if not style_dict:
-        return style
-    for key, value in style_dict.items():
-        if key == "font":
-            style.font = Font(**value)
-        elif key == "fill":
-            style.fill = PatternFill(**value)
-        elif key == "alignment":
-            style.alignment = Alignment(**value)
-        elif key == "border_side":
-            side = Side(**value)
-            style.border = Border(left=side, right=side, top=side, bottom=side)
-
-    return style
+from drf_excel.utilities import XLSXStyle, set_cell_style
 
 
 def get_attribute(get_from, prop_name, default=None):
@@ -91,7 +55,7 @@ class XLSXRenderer(BaseRenderer):
     fields_dict = {}
     ignore_headers = []
     boolean_display = None
-    format_mappings = None
+    column_data_styles = None
     custom_mappings = None
     custom_cols = None
     sanitize_fields = True  # prepend possibly malicious values with "'"
@@ -113,8 +77,10 @@ class XLSXRenderer(BaseRenderer):
 
         results = data["results"] if "results" in data else data
 
+        drf_view = renderer_context.get("view")
+
         # Take header and column_header params from view
-        header = get_attribute(renderer_context["view"], "header", {})
+        header = get_attribute(drf_view, "header", {})
         use_header = header and header.get("use_header", True)
         self.ws.title = header.get("tab_title", "Report")
         header_title = header.get("header_title", "Report")
@@ -122,10 +88,12 @@ class XLSXRenderer(BaseRenderer):
         if img_addr:
             img = Image(img_addr)
             self.ws.add_image(img, "A1")
-        header_style = get_style_from_dict(header.get("style"), "header_style")
+        header_style = XLSXStyle(header.get("style")) if header and "style" in header else None
 
-        column_header = get_attribute(renderer_context["view"], "column_header", {})
-        column_header_style = get_style_from_dict(column_header.get("style"), "column_header_style")
+        column_header = get_attribute(drf_view, "column_header", {})
+        column_header_style = (
+            XLSXStyle(column_header.get("style")) if column_header and "style" in column_header else None
+        )
         column_count = 0
         row_count = 1
         if use_header:
@@ -133,10 +101,9 @@ class XLSXRenderer(BaseRenderer):
         # Make column headers
         column_titles = column_header.get("titles", [])
 
-        # If we have results, get view and serializer from context, then flatten field
+        # If we have results, then flatten field
         # names
         if len(results):
-            drf_view = renderer_context.get("view")
 
             # Set `xlsx_use_labels = True` inside the API View to enable labels.
             use_labels = getattr(drf_view, "xlsx_use_labels", False)
@@ -148,9 +115,17 @@ class XLSXRenderer(BaseRenderer):
             # I.e.: xlsx_boolean_labels: {True: "Yes", False: "No"}
             self.boolean_display = getattr(drf_view, "xlsx_boolean_labels", None)
 
-            # Set dict named xlsx_format_mappings with headers as keys and
-            # formatting as value. i.e. { 'created_at': 'yyyy-mm-dd h:mm:ss', 'cost': '"$"#,##0.00_-' }
-            self.format_mappings = getattr(drf_view, "xlsx_format_mappings", dict())
+            # Set dict named column_data_styles with headers as keys and style as value. i.e.
+            # column_data_styles = {
+            #       'distance': {
+            # 	        'fill': {'fill_type': 'solid', 'start_color': 'FFCCFFCC'},
+            # 	    	'alignment': {'horizontal': 'center', 'vertical': 'center', 'wrapText': True, 'shrink_to_fit': True},
+            # 	    	'border_side': {'border_style': 'thin', 'color': 'FF000000'},
+            # 	    	'font': {'name': 'Arial', 'size': 14, 'bold': True, 'color': 'FF000000'},
+            # 	    	'format': '0.00E+00'
+            # 	    },
+            #   }
+            self.column_data_styles = get_attribute(drf_view, "column_data_styles", dict())
 
             # Set dict of additional columns. Can be useful when wanting to add columns
             # that don't exist in the API response. For example, you could want to
@@ -190,7 +165,8 @@ class XLSXRenderer(BaseRenderer):
                 else:
                     column_name_display = column_titles[column_count - 1]
 
-                self.ws.cell(row=row_count, column=column_count, value=column_name_display).style = column_header_style
+                header_cell = self.ws.cell(row=row_count, column=column_count, value=column_name_display)
+                set_cell_style(header_cell, column_header_style)
             self.ws.row_dimensions[row_count].height = column_header.get("height", 45)
 
         # Set the header row
@@ -201,7 +177,7 @@ class XLSXRenderer(BaseRenderer):
             self.ws.merge_cells("A1:{}1".format(last_col_letter))
 
             cell = self.ws.cell(row=1, column=1, value=header_title)
-            cell.style = header_style
+            set_cell_style(cell, header_style)
             self.ws.row_dimensions[1].height = header.get("height", 45)
 
         # Set column width
@@ -216,8 +192,8 @@ class XLSXRenderer(BaseRenderer):
                 self.ws.column_dimensions[col_letter].width = column_width
 
         # Make body
-        body = get_attribute(renderer_context["view"], "body", {})
-        self.body_style = get_style_from_dict(body.get("style"), "body_style")
+        body = get_attribute(drf_view, "body", {})
+        self.body_style = XLSXStyle(body.get("style")) if body and "style" in body else None
         if isinstance(results, dict):
             self._make_body(body, results, row_count)
         elif isinstance(results, list):
@@ -321,6 +297,7 @@ class XLSXRenderer(BaseRenderer):
 
     def _drf_to_xlsx_field(self, key, value) -> XLSXField:
         field = self.fields_dict.get(key)
+        cell_style = XLSXStyle(self.column_data_styles.get(key)) if key in self.column_data_styles else None
         kwargs = {
             "key": key,
             "value": value,
@@ -328,7 +305,7 @@ class XLSXRenderer(BaseRenderer):
             "style": self.body_style,
             # Basically using formatter of custom col as a custom mapping
             "mapping": self.custom_cols.get(key, {}).get("formatter") or self.custom_mappings.get(key),
-            "format": self.format_mappings.get(key),
+            "cell_style": cell_style,
         }
         if isinstance(field, BooleanField) or isinstance(field, NullBooleanField):
             return XLSXBooleanField(boolean_display=self.boolean_display, **kwargs)

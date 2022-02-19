@@ -1,13 +1,10 @@
 import datetime
 import json
 from decimal import Decimal
-from typing import Any, Callable, Iterable, Optional, Union
+from typing import Any, Callable, Iterable, Union
 
-from django.conf import settings as django_settings
 from django.utils.dateparse import parse_date, parse_datetime, parse_time
 from openpyxl.cell import Cell
-from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
-from openpyxl.styles import NamedStyle
 from openpyxl.styles.numbers import (
     FORMAT_DATE_DATETIME,
     FORMAT_DATE_TIME4,
@@ -17,37 +14,41 @@ from openpyxl.styles.numbers import (
 )
 from openpyxl.worksheet.worksheet import Worksheet
 from rest_framework import ISO_8601
-from rest_framework.fields import DateField, DateTimeField, DecimalField, Field, FloatField, IntegerField, TimeField
+from rest_framework.fields import (
+    DateField,
+    DateTimeField,
+    DecimalField,
+    Field,
+    FloatField,
+    IntegerField,
+    TimeField,
+)
 from rest_framework.settings import api_settings as drf_settings
 
-ESCAPE_CHARS = ("=", "-", "+", "@", "\t", "\r", "\n")
+from drf_excel.utilities import XLSXStyle, get_setting, sanitize_value, set_cell_style
 
 
-def get_setting(key, default=None):
-    return getattr(django_settings, "DRF_EXCEL_" + key, default)
-
-
-class XLSXField:
+class XLSXField(object):
     sanitize = True
 
-    def __init__(self, key: str, value, field: Field, style: NamedStyle, mapping: Union[str, Callable], format: str):
+    def __init__(
+        self,
+        key: str,
+        value: Any,
+        field: Field,
+        style: XLSXStyle,
+        mapping: Union[str, Callable],
+        cell_style: XLSXStyle,
+    ):
         self.key = key
         self.original_value = value
         self.drf_field = field
-        self.style = style or NamedStyle()
+        self.style = style
         self.mapping = mapping
-        self.format = format
+        self.cell_style = cell_style
         self.value = self.init_value(value)
 
     def init_value(self, value):
-        return value
-
-    def sanitize_value(self, value):
-        # prepend ' if value is starting with possible malicious char
-        if self.sanitize and value:
-            str_value = str(value)
-            str_value = ILLEGAL_CHARACTERS_RE.sub("", str_value)  # remove ILLEGAL_CHARACTERS so it doesn't crash
-            return "'" + str_value if str_value.startswith(ESCAPE_CHARS) else str_value
         return value
 
     def custom_mapping(self):
@@ -61,21 +62,18 @@ class XLSXField:
         return self.value
 
     def prep_cell(self, cell: Cell):
-        # We cannot apply the whole style directly, otherwise we cannot override any part of it
-        cell.font = self.style.font
-        cell.fill = self.style.fill
-        cell.alignment = self.style.alignment
-        cell.border = self.style.border
-        cell.number_format = self.style.number_format
+        set_cell_style(cell, self.style)
 
     def cell(self, ws: Worksheet, row, column) -> Cell:
         # If we have a custom mapping use it and done. If not prep value for output
-        value = self.sanitize_value(self.custom_mapping() if self.mapping else self.prep_value())
+        value = self.custom_mapping() if self.mapping else self.prep_value()
+        if self.sanitize:
+            value = sanitize_value(value)
         cell: Cell = ws.cell(row, column, value)
         self.prep_cell(cell)
-        # Provided format always has priority
-        if self.format:
-            cell.number_format = self.format
+        # Provided cell style always has priority
+        if self.cell_style:
+            set_cell_style(cell, self.cell_style)
         return cell
 
 

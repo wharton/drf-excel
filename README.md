@@ -57,7 +57,11 @@ To upgrade to `drf_excel` 1.0.0 from `drf_renderer_xlsx`, update your import pat
 
 ## Configuring Styles 
 
-Styles can be added to your worksheet header, column header row, and body rows, from view attributes `header`, `column_header`, `body`. Any arguments from [the OpenPyXL package](https://openpyxl.readthedocs.io/en/stable/styles.html) can be used for font, alignment, fill and border_side (border will always be all side of cell).   
+Styles can be added to your worksheet header, column header row, body and column data from view attributes `header`, `column_header`, `body`, `column_data_styles`. Any arguments from [the OpenPyXL package](https://openpyxl.readthedocs.io/en/stable/styles.html) can be used for font, alignment, fill and border_side (border will always be all side of cell).
+
+If provided, column data styles will override body style
+
+Note that column data styles can take an extra 'format' argument that follows [openpyxl formats](https://openpyxl.readthedocs.io/en/stable/_modules/openpyxl/styles/numbers.html).
 
 ```python
 class MyExampleViewSet(XLSXFileMixin, ReadOnlyModelViewSet):
@@ -121,22 +125,33 @@ class MyExampleViewSet(XLSXFileMixin, ReadOnlyModelViewSet):
         },
         'height': 40,
     }
+    column_data_styles = {
+        'distance': {
+            'alignment': {
+                'horizontal': 'right',
+                'vertical': 'top',
+            },
+            'format': '0.00E+00'
+        },
+        'created_at': {
+            'format': '%d.%m.%Y %H:%M',
+        }
+    }
 ```
 
-You can dynamically generate style attributes in methods `get_body`, `get_header`, `get_column_header`.
+You can dynamically generate style attributes in methods `get_body`, `get_header`, `get_column_header`, `get_column_data_styles`.
 
 ```python
 def get_header(self):
-    starttime, endtime = parse_times(request=self.request)
+    start_time, end_time = parse_times(request=self.request)
     datetime_format = "%H:%M:%S %d.%m.%Y"
     return {
-        'tab_title': 'MyReport',
+        'tab_title': 'MyReport', # title of tab/workbook
         'use_header': True,  # show the header_title 
         'header_title': 'Report from {} to {}'.format(
-            starttime.strftime(datetime_format),
-            endtime.strftime(datetime_format),
+            start_time.strftime(datetime_format),
+            end_time.strftime(datetime_format),
         ),
-        'tab_title': 'Report',  # title of tab/workbook
         'height': 45,
         'img': 'app/images/MyLogo.png',
         'style': {
@@ -189,10 +204,9 @@ By default, all fields are exported, but you might want to exclude some fields f
 
 This also works with nested fields, separated with a dot (i.e. `icon.url`).
 
-### Cell formatting
+### Date/time and number formatting
 Formatting for cells follows [openpyxl formats](https://openpyxl.readthedocs.io/en/stable/_modules/openpyxl/styles/numbers.html).
 
-#### Global formatting
 To set global formats, set the following variables in `settings.py`:
 
 ```python
@@ -204,17 +218,6 @@ DRF_EXCEL_TIME_FORMAT = 'h:mm AM/PM'
 # Number formats
 DRF_EXCEL_INTEGER_FORMAT = '0%'
 DRF_EXCEL_DECIMAL_FORMAT = '0.00E+00'
-```
-
-#### Field formatting
-Inside your API view, to specify a field date or number format, use `xlsx_format_mappings` as a `dict` with the field name as its key and the format as its value:
-
-```python    
-xlsx_format_mappings = {
-    'created_at': '%d.%m.%Y %H:%M',
-    'updated_at': '%d.%m.%Y %H:%M',
-    'cost': '"$"#,##0.00_-',
-}
 ```
 
 ### Name boolean values
