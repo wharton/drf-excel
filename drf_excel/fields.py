@@ -1,7 +1,7 @@
 import datetime
 import json
 from decimal import Decimal
-from typing import Any, Callable, Iterable, Union
+from typing import Any, Callable, Iterable, Optional, Union
 
 from django.conf import settings as django_settings
 from django.utils.dateparse import parse_date, parse_datetime, parse_time
@@ -23,19 +23,20 @@ from rest_framework.settings import api_settings as drf_settings
 ESCAPE_CHARS = ("=", "-", "+", "@", "\t", "\r", "\n")
 
 
-def get_setting(key):
-    return getattr(django_settings, "DRF_RENDERER_XLSX_" + key, None)
+def get_setting(key, default=None):
+    return getattr(django_settings, "DRF_EXCEL_" + key, default)
 
 
 class XLSXField:
     sanitize = True
 
-    def __init__(self, key, value, field: Field, style: NamedStyle, mapping: Union[str, Callable]):
+    def __init__(self, key: str, value, field: Field, style: NamedStyle, mapping: Union[str, Callable], format: str):
         self.key = key
         self.original_value = value
         self.drf_field = field
         self.style = style or NamedStyle()
         self.mapping = mapping
+        self.format = format
         self.value = self.init_value(value)
 
     def init_value(self, value):
@@ -72,14 +73,16 @@ class XLSXField:
         value = self.sanitize_value(self.custom_mapping() if self.mapping else self.prep_value())
         cell: Cell = ws.cell(row, column, value)
         self.prep_cell(cell)
+        # Provided format always has priority
+        if self.format:
+            cell.number_format = self.format
         return cell
 
 
 class XLSXNumberField(XLSXField):
     sanitize = False
 
-    def __init__(self, number_format, **kwargs):
-        self.number_format = number_format
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     def init_value(self, value):
@@ -96,9 +99,7 @@ class XLSXNumberField(XLSXField):
 
     def prep_cell(self, cell: Cell):
         super().prep_cell(cell)
-        if self.number_format:
-            cell.number_format = self.number_format
-        elif isinstance(self.drf_field, IntegerField):
+        if isinstance(self.drf_field, IntegerField):
             cell.number_format = get_setting("INTEGER_FORMAT") or FORMAT_NUMBER
         else:
             cell.number_format = get_setting("DECIMAL_FORMAT") or FORMAT_NUMBER_00
@@ -107,8 +108,7 @@ class XLSXNumberField(XLSXField):
 class XLSXDateField(XLSXField):
     sanitize = False
 
-    def __init__(self, date_format, **kwargs):
-        self.date_format = date_format
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     def _parse_date(self, value, setting_format, iso_parse_func):
@@ -139,9 +139,7 @@ class XLSXDateField(XLSXField):
 
     def prep_cell(self, cell: Cell):
         super().prep_cell(cell)
-        if self.date_format:
-            cell.number_format = self.date_format
-        elif isinstance(self.drf_field, DateTimeField):
+        if isinstance(self.drf_field, DateTimeField):
             cell.number_format = get_setting("DATETIME_FORMAT") or FORMAT_DATE_DATETIME
         elif isinstance(self.drf_field, DateField):
             cell.number_format = get_setting("DATE_FORMAT") or FORMAT_DATE_YYYYMMDD2
@@ -167,7 +165,7 @@ class XLSXListField(XLSXField):
 class XLSXBooleanField(XLSXField):
     sanitize = False
 
-    def __init__(self, boolean_display, **kwargs):
+    def __init__(self, boolean_display: dict, **kwargs):
         self.boolean_display = boolean_display
         super().__init__(**kwargs)
 

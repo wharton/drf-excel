@@ -123,7 +123,7 @@ class MyExampleViewSet(XLSXFileMixin, ReadOnlyModelViewSet):
     }
 ```
 
-Also you can dynamically generate style attributes in methods `get_body`, `get_header`, `get_column_header`.
+You can dynamically generate style attributes in methods `get_body`, `get_header`, `get_column_header`.
 
 ```python
 def get_header(self):
@@ -164,7 +164,7 @@ def get_header(self):
     }
 ```
 
-Also you can add `color` field to your serializer and fill body rows.
+Also, you can add `color` field to your serializer and fill body rows.
 
 ```python
 class ExampleSerializer(serializers.Serializer):
@@ -189,28 +189,57 @@ By default, all fields are exported, but you might want to exclude some fields f
 
 This also works with nested fields, separated with a dot (i.e. `icon.url`).
 
+### Cell formatting
+Formatting for cells follows [openpyxl formats](https://openpyxl.readthedocs.io/en/stable/_modules/openpyxl/styles/numbers.html).
+
+#### Global formatting
+To set global formats, set the following variables in `settings.py`:
+
+```python
+# Date formats
+DRF_EXCEL_DATETIME_FORMAT = 'mm-dd-yy h:mm AM/PM'
+DRF_EXCEL_DATE_FORMAT = 'mm-dd-yy'
+DRF_EXCEL_TIME_FORMAT = 'h:mm AM/PM'
+
+# Number formats
+DRF_EXCEL_INTEGER_FORMAT = '0%'
+DRF_EXCEL_DECIMAL_FORMAT = '0.00E+00'
+```
+
+#### Field formatting
+Inside your API view, to specify a field date or number format, use `xlsx_format_mappings` as a `dict` with the field name as its key and the format as its value:
+
+```python    
+xlsx_format_mappings = {
+    'created_at': '%d.%m.%Y %H:%M',
+    'updated_at': '%d.%m.%Y %H:%M',
+    'cost': '"$"#,##0.00_-',
+}
+```
+
 ### Name boolean values
 
-`True` and `False` as values for boolean fields are not always the best representation and don't support translation. This can be controlled with `xlsx_boolean_labels`. 
+`True` and `False` as values for boolean fields are not always the best representation and don't support translation. 
 
-`xlsx_boolean_labels = {True: _('Yes'), False: _('No')}` will replace `True` with `Yes` and `False` with `No`.
+This can be controlled with in you API view with `xlsx_boolean_labels`. 
 
+```
+xlsx_boolean_labels = {True: _('Yes'), False: _('No')}
+```
 
-### Format dates
+will replace `True` with `Yes` and `False` with `No`.
 
-To format dates differently than what DRF returns (eg. 2013-01-29T12:34:56.000000Z) `xlsx_date_format_mappings` takes a ´dict` with the field name as its key and the date(time) format as its value:
+This can also be set globally in settings.py:
 
-```    
-xlsx_date_format_mappings = {
-    'created_at': '%d.%m.%Y %H:%M',
-    'updated_at': '%d.%m.%Y %H:%M'
-}
+```
+DRF_EXCEL_BOOLEAN_DISPLAY = {True: _('Yes'), False: _('No')}
 ```
 
 
 ### Custom columns
 
 You might find yourself explicitly returning a dict in your API response and would like to use its data to display additional columns. This can be done by passing `xlsx_custom_cols`.
+
 ```
 xlsx_custom_cols = {
     'my_custom_col.val1.title': {
@@ -242,7 +271,7 @@ def custom_value_formatter(val):
 }
 ```
 
-When no `label` is passed, `drf-renderer-xlsx` will display the key name in the header.
+When no `label` is passed, `drf-excel` will display the key name in the header.
 `formatter` is also optional and accepts a function, which will then receive the value it is mapped to (it would receive "Sometimes" and return "Sometimes!!!" in our example).
 
 ### Custom mappings

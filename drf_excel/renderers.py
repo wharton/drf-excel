@@ -91,8 +91,7 @@ class XLSXRenderer(BaseRenderer):
     fields_dict = {}
     ignore_headers = []
     boolean_display = None
-    date_format_mappings = None
-    number_format_mappings = None
+    format_mappings = None
     custom_mappings = None
     custom_cols = None
     sanitize_fields = True  # prepend possibly malicious values with "'"
@@ -149,13 +148,9 @@ class XLSXRenderer(BaseRenderer):
             # I.e.: xlsx_boolean_labels: {True: "Yes", False: "No"}
             self.boolean_display = getattr(drf_view, "xlsx_boolean_labels", None)
 
-            # Set dict named xlsx_date_format_mappings with headers as keys and
-            # formatting as value. i.e. { 'created_at': 'yyyy-mm-dd h:mm:ss' }
-            self.date_format_mappings = getattr(drf_view, "xlsx_date_format_mappings", dict())
-
-            # Set dict named xlsx_number_format_mappings with headers as keys and
-            # formatting as value. i.e. { 'cost': '"$"#,##0.00_-' }
-            self.number_format_mappings = getattr(drf_view, "xlsx_number_format_mappings", dict())
+            # Set dict named xlsx_format_mappings with headers as keys and
+            # formatting as value. i.e. { 'created_at': 'yyyy-mm-dd h:mm:ss', 'cost': '"$"#,##0.00_-' }
+            self.format_mappings = getattr(drf_view, "xlsx_format_mappings", dict())
 
             # Set dict of additional columns. Can be useful when wanting to add columns
             # that don't exist in the API response. For example, you could want to
@@ -333,15 +328,14 @@ class XLSXRenderer(BaseRenderer):
             "style": self.body_style,
             # Basically using formatter of custom col as a custom mapping
             "mapping": self.custom_cols.get(key, {}).get("formatter") or self.custom_mappings.get(key),
+            "format": self.format_mappings.get(key),
         }
-        date_format = self.date_format_mappings.get(key)
-        number_format = self.number_format_mappings.get(key)
-        if isinstance(field, BooleanField) or isinstance(field, NullBooleanField) or type(value) == bool:
+        if isinstance(field, BooleanField) or isinstance(field, NullBooleanField):
             return XLSXBooleanField(boolean_display=self.boolean_display, **kwargs)
         elif isinstance(field, IntegerField) or isinstance(field, FloatField) or isinstance(field, DecimalField):
-            return XLSXNumberField(number_format=number_format, **kwargs)
+            return XLSXNumberField(**kwargs)
         elif isinstance(field, DateTimeField) or isinstance(field, DateField) or isinstance(field, TimeField):
-            return XLSXDateField(date_format=date_format, **kwargs)
+            return XLSXDateField(**kwargs)
         elif isinstance(field, ListField) or isinstance(value, Iterable) and not isinstance(value, str):
             return XLSXListField(list_sep=self.list_sep, **kwargs)
         return XLSXField(**kwargs)
