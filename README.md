@@ -48,16 +48,21 @@ class MyExampleViewSet(XLSXFileMixin, ReadOnlyModelViewSet):
 
 The `XLSXFileMixin` also provides a `get_filename()` method which can be overridden, if you prefer to provide a filename programmatically instead of the `filename` attribute.
 
-## Upgrading to 1.0.0
+## Upgrading to 2.0.0
 
-To upgrade to `drf_excel` 1.0.0 from `drf_renderer_xlsx`, update your import paths:
+To upgrade to `drf_excel` 2.0.0 from `drf_renderer_xlsx`, update your import paths:
 
 * `from drf_renderer_xlsx.mixins import XLSXFileMixin` becomes `from drf_excel.mixins import XLSXFileMixin`.
-* `drf_renderer_xlsx.renderers.XLSXRenderer` becomes `drf_excel.renderers.XLSXRenderer`.
+* `drf_renderer_xlsx.renderers.XLSXRenderer` becomes `def_excel.renderers.XLSXRenderer`.
+* `xlsx_date_format_mappings` has been removed in favor of `column_data_styles` which provides more flexibility
 
 ## Configuring Styles 
 
-Styles can be added to your worksheet header, column header row, and body rows, from view attributes `header`, `column_header`, `body`. Any arguments from [the OpenPyXL package](https://openpyxl.readthedocs.io/en/stable/styles.html) can be used for font, alignment, fill and border_side (border will always be all side of cell).   
+Styles can be added to your worksheet header, column header row, body and column data from view attributes `header`, `column_header`, `body`, `column_data_styles`. Any arguments from [the OpenPyXL package](https://openpyxl.readthedocs.io/en/stable/styles.html) can be used for font, alignment, fill and border_side (border will always be all side of cell).
+
+If provided, column data styles will override body style
+
+Note that column data styles can take an extra 'format' argument that follows [openpyxl formats](https://openpyxl.readthedocs.io/en/stable/_modules/openpyxl/styles/numbers.html).
 
 ```python
 class MyExampleViewSet(XLSXFileMixin, ReadOnlyModelViewSet):
@@ -121,22 +126,33 @@ class MyExampleViewSet(XLSXFileMixin, ReadOnlyModelViewSet):
         },
         'height': 40,
     }
+    column_data_styles = {
+        'distance': {
+            'alignment': {
+                'horizontal': 'right',
+                'vertical': 'top',
+            },
+            'format': '0.00E+00'
+        },
+        'created_at': {
+            'format': '%d.%m.%Y %H:%M',
+        }
+    }
 ```
 
-Also you can dynamically generate style attributes in methods `get_body`, `get_header`, `get_column_header`.
+You can dynamically generate style attributes in methods `get_body`, `get_header`, `get_column_header`, `get_column_data_styles`.
 
 ```python
 def get_header(self):
-    starttime, endtime = parse_times(request=self.request)
+    start_time, end_time = parse_times(request=self.request)
     datetime_format = "%H:%M:%S %d.%m.%Y"
     return {
-        'tab_title': 'MyReport',
+        'tab_title': 'MyReport', # title of tab/workbook
         'use_header': True,  # show the header_title 
         'header_title': 'Report from {} to {}'.format(
-            starttime.strftime(datetime_format),
-            endtime.strftime(datetime_format),
+            start_time.strftime(datetime_format),
+            end_time.strftime(datetime_format),
         ),
-        'tab_title': 'Report',  # title of tab/workbook
         'height': 45,
         'img': 'app/images/MyLogo.png',
         'style': {
@@ -164,7 +180,7 @@ def get_header(self):
     }
 ```
 
-Also you can add `color` field to your serializer and fill body rows.
+Also, you can add `color` field to your serializer and fill body rows.
 
 ```python
 class ExampleSerializer(serializers.Serializer):
@@ -189,28 +205,45 @@ By default, all fields are exported, but you might want to exclude some fields f
 
 This also works with nested fields, separated with a dot (i.e. `icon.url`).
 
+### Date/time and number formatting
+Formatting for cells follows [openpyxl formats](https://openpyxl.readthedocs.io/en/stable/_modules/openpyxl/styles/numbers.html).
+
+To set global formats, set the following variables in `settings.py`:
+
+```python
+# Date formats
+DRF_EXCEL_DATETIME_FORMAT = 'mm-dd-yy h:mm AM/PM'
+DRF_EXCEL_DATE_FORMAT = 'mm-dd-yy'
+DRF_EXCEL_TIME_FORMAT = 'h:mm AM/PM'
+
+# Number formats
+DRF_EXCEL_INTEGER_FORMAT = '0%'
+DRF_EXCEL_DECIMAL_FORMAT = '0.00E+00'
+```
+
 ### Name boolean values
 
-`True` and `False` as values for boolean fields are not always the best representation and don't support translation. This can be controlled with `xlsx_boolean_labels`. 
+`True` and `False` as values for boolean fields are not always the best representation and don't support translation. 
 
-`xlsx_boolean_labels = {True: _('Yes'), False: _('No')}` will replace `True` with `Yes` and `False` with `No`.
+This can be controlled with in you API view with `xlsx_boolean_labels`. 
 
+```
+xlsx_boolean_labels = {True: _('Yes'), False: _('No')}
+```
 
-### Format dates
+will replace `True` with `Yes` and `False` with `No`.
 
-To format dates differently than what DRF returns (eg. 2013-01-29T12:34:56.000000Z) `xlsx_date_format_mappings` takes a ´dict` with the field name as its key and the date(time) format as its value:
+This can also be set globally in settings.py:
 
-```    
-xlsx_date_format_mappings = {
-    'created_at': '%d.%m.%Y %H:%M',
-    'updated_at': '%d.%m.%Y %H:%M'
-}
+```
+DRF_EXCEL_BOOLEAN_DISPLAY = {True: _('Yes'), False: _('No')}
 ```
 
 
 ### Custom columns
 
 You might find yourself explicitly returning a dict in your API response and would like to use its data to display additional columns. This can be done by passing `xlsx_custom_cols`.
+
 ```
 xlsx_custom_cols = {
     'my_custom_col.val1.title': {
@@ -242,7 +275,7 @@ def custom_value_formatter(val):
 }
 ```
 
-When no `label` is passed, `drf-renderer-xlsx` will display the key name in the header.
+When no `label` is passed, `drf-excel` will display the key name in the header.
 `formatter` is also optional and accepts a function, which will then receive the value it is mapped to (it would receive "Sometimes" and return "Sometimes!!!" in our example).
 
 ### Custom mappings
