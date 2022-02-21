@@ -24,7 +24,7 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
-        'def_excel.renderers.XLSXRenderer',
+        'drf_excel.renderers.XLSXRenderer',
     ),
 }
 ```
@@ -53,7 +53,7 @@ The `XLSXFileMixin` also provides a `get_filename()` method which can be overrid
 To upgrade to `drf_excel` 1.0.0 from `drf_renderer_xlsx`, update your import paths:
 
 * `from drf_renderer_xlsx.mixins import XLSXFileMixin` becomes `from drf_excel.mixins import XLSXFileMixin`.
-* `def_renderer_xlsx.renderers.XLSXRenderer` becomes `def_excel.renderers.XLSXRenderer`.
+* `drf_renderer_xlsx.renderers.XLSXRenderer` becomes `drf_excel.renderers.XLSXRenderer`.
 
 ## Configuring Styles 
 
