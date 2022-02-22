@@ -34,11 +34,23 @@ class XLSXStyle(object):
         if style_dict is None:
             style_dict = {}
         self.font = Font(**style_dict.get("font")) if "font" in style_dict else None
-        self.fill = PatternFill(**style_dict.get("fill")) if "fill" in style_dict else None
-        self.alignment = Alignment(**style_dict.get("alignment")) if "alignment" in style_dict else None
+        self.fill = (
+            PatternFill(**style_dict.get("fill")) if "fill" in style_dict else None
+        )
+        self.alignment = (
+            Alignment(**style_dict.get("alignment"))
+            if "alignment" in style_dict
+            else None
+        )
         self.number_format = style_dict.get("format", None)
-        side = Side(**style_dict.get("border_side")) if "border_side" in style_dict else None
-        self.border = Border(left=side, right=side, top=side, bottom=side) if side else None
+        side = (
+            Side(**style_dict.get("border_side"))
+            if "border_side" in style_dict
+            else None
+        )
+        self.border = (
+            Border(left=side, right=side, top=side, bottom=side) if side else None
+        )
 
 
 def get_setting(key, default=None):
@@ -49,7 +61,9 @@ def sanitize_value(value):
     # prepend ' if value is starting with possible malicious char
     if value:
         str_value = str(value)
-        str_value = ILLEGAL_CHARACTERS_RE.sub("", str_value)  # remove ILLEGAL_CHARACTERS so it doesn't crash
+        str_value = ILLEGAL_CHARACTERS_RE.sub(
+            "", str_value
+        )  # remove ILLEGAL_CHARACTERS so it doesn't crash
         return "'" + str_value if str_value.startswith(ESCAPE_CHARS) else str_value
     return value
 
