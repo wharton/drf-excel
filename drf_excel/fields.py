@@ -110,8 +110,10 @@ class XLSXDateField(XLSXField):
         super().__init__(**kwargs)
 
     def _parse_date(self, value, setting_format, iso_parse_func):
-        # Parse format is DRF output format: DATETIME_FORMAT, DATE_FORMAT or TIME_FORMAT
-        parse_format = getattr(drf_settings, setting_format)
+        # Parse format is Field format if provided.
+        drf_format = getattr(self.drf_field, "format", None)
+        # Otherwise, use DRF output format: DATETIME_FORMAT, DATE_FORMAT or TIME_FORMAT
+        parse_format = drf_format or getattr(drf_settings, setting_format)
         # Use the provided iso parse function for the special case ISO_8601
         if parse_format.lower() == ISO_8601:
             return iso_parse_func(value)
