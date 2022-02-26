@@ -135,7 +135,7 @@ class MyExampleViewSet(XLSXFileMixin, ReadOnlyModelViewSet):
             'format': '0.00E+00'
         },
         'created_at': {
-            'format': '%d.%m.%Y %H:%M',
+            'format': 'd.m.y h:mm',
         }
     }
 ```
