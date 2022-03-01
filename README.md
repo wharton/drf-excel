@@ -53,7 +53,7 @@ The `XLSXFileMixin` also provides a `get_filename()` method which can be overrid
 To upgrade to `drf_excel` 2.0.0 from `drf_renderer_xlsx`, update your import paths:
 
 * `from drf_renderer_xlsx.mixins import XLSXFileMixin` becomes `from drf_excel.mixins import XLSXFileMixin`.
-* `drf_renderer_xlsx.renderers.XLSXRenderer` becomes `def_excel.renderers.XLSXRenderer`.
+* `drf_renderer_xlsx.renderers.XLSXRenderer` becomes `drf_excel.renderers.XLSXRenderer`.
 * `xlsx_date_format_mappings` has been removed in favor of `column_data_styles` which provides more flexibility
 
 ## Configuring Styles 
