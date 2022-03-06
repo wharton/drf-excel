@@ -6,6 +6,7 @@ from openpyxl import Workbook
 from openpyxl.drawing.image import Image
 from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
+from openpyxl.worksheet.views import SheetView
 from openpyxl.writer.excel import save_virtual_workbook
 from rest_framework.fields import (
     BooleanField,
@@ -29,25 +30,7 @@ from drf_excel.fields import (
     XLSXListField,
     XLSXNumberField,
 )
-from drf_excel.utilities import XLSXStyle, set_cell_style
-
-
-def get_attribute(get_from, prop_name, default=None):
-    """
-    Get attribute from object with name <prop_name>, or take it from function get_<prop_name>
-    :param get_from: instance of object
-    :param prop_name: name of attribute (str)
-    :param default: what to return if attribute doesn't exist
-    :return: value of attribute <prop_name> or default
-    """
-    prop = getattr(get_from, prop_name, None)
-    if not prop:
-        prop_func = getattr(get_from, "get_{}".format(prop_name), None)
-        if prop_func:
-            prop = prop_func()
-    if prop is None:
-        prop = default
-    return prop
+from drf_excel.utilities import XLSXStyle, get_attribute, set_cell_style
 
 
 class XLSXRenderer(BaseRenderer):
@@ -64,9 +47,9 @@ class XLSXRenderer(BaseRenderer):
     column_data_styles = None
     custom_mappings = None
     custom_cols = None
-    sanitize_fields = True  # prepend possibly malicious values with "'"
     list_sep = ", "
     body_style = None
+    sheet_view_options = {}
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
         """
@@ -221,6 +204,15 @@ class XLSXRenderer(BaseRenderer):
             for row in results:
                 self._make_body(body, row, row_count)
                 row_count += 1
+
+        # Set sheet view options
+        # Example:
+        # sheet_view_options = {
+        #   'rightToLeft': True,
+        #   'showGridLines': False
+        # }
+        self.sheet_view_options = get_attribute(drf_view, "sheet_view_options", dict())
+        self.ws.views.sheetView[0] = SheetView(**self.sheet_view_options)
 
         return save_virtual_workbook(wb)
 

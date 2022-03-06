@@ -191,6 +191,31 @@ class ExampleSerializer(serializers.Serializer):
         return color_map.get(instance.alarm_level, 'FFFFFFFF')
 ```
 
+## Configuring Sheet View Options
+
+View options follow [openpyxl sheet view options](https://openpyxl.readthedocs.io/en/stable/_modules/openpyxl/worksheet/views.html#SheetView)
+
+They can be set in the view as a property `sheet_view_options`:
+
+```python
+class MyExampleViewSet(serializers.Serializer):
+    sheet_view_options = {
+        'rightToLeft': True, 
+        'showGridLines': False
+    }
+```
+
+or using method `get_sheet_view_options`:
+
+```python
+class MyExampleViewSet(serializers.Serializer):
+    
+    def get_sheet_view_options(self):
+        return {
+            'rightToLeft': True, 
+            'showGridLines': False
+        }
+```
 ## Controlling XLSX headers and values
 
 ### Use Serializer Field labels as header names
