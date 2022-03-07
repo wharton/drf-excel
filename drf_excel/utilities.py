@@ -53,6 +53,24 @@ class XLSXStyle(object):
         )
 
 
+def get_attribute(get_from, prop_name, default=None):
+    """
+    Get attribute from object with name <prop_name>, or take it from function get_<prop_name>
+    :param get_from: instance of object
+    :param prop_name: name of attribute (str)
+    :param default: what to return if attribute doesn't exist
+    :return: value of attribute <prop_name> or default
+    """
+    prop = getattr(get_from, prop_name, None)
+    if not prop:
+        prop_func = getattr(get_from, "get_{}".format(prop_name), None)
+        if prop_func:
+            prop = prop_func()
+    if prop is None:
+        prop = default
+    return prop
+
+
 def get_setting(key, default=None):
     return getattr(django_settings, "DRF_EXCEL_" + key, default)
 
