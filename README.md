@@ -322,9 +322,10 @@ xlsx_custom_mappings = {
 }
 ```
 
-## Release Notes
+## Release Notes and Contributors
 
-Release notes are [available on GitHub](https://github.com/wharton/drf-excel/releases).
+* [Release notes](https://github.com/wharton/drf-excel/releases)
+* [Our wonderful contributors](https://github.com/wharton/drf-excel/graphs/contributors)
 
 ## Maintainers
 
