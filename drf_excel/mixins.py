@@ -1,3 +1,4 @@
+from django.utils.encoding import escape_uri_path
 from rest_framework.response import Response
 
 
@@ -28,6 +29,6 @@ class XLSXFileMixin(object):
             and response.accepted_renderer.format == "xlsx"
         ):
             response["content-disposition"] = "attachment; filename={}".format(
-                self.get_filename(request=request, *args, **kwargs),
+                escape_uri_path(self.get_filename(request=request, *args, **kwargs)),
             )
         return response
