@@ -21,7 +21,7 @@ class XLSXFileMixin(object):
         Return the response with the proper content disposition and the customized
         filename instead of the browser default (or lack thereof).
         """
-        response = super(XLSXFileMixin, self).finalize_response(
+        response = super().finalize_response(
             request, response, *args, **kwargs
         )
         if (
