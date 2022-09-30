@@ -14,7 +14,7 @@ setup(
     include_package_data=True,
     packages=find_packages(),
     zip_safe=False,
-    install_requires=["djangorestframework>=3.6", "openpyxl>=2.4"],
+    install_requires=["djangorestframework>=3.14", "openpyxl>=2.4"],
     setup_requires=["setuptools_scm"],
     use_scm_version=True,
     classifiers=[
