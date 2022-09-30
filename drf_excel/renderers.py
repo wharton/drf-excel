@@ -17,7 +17,6 @@ from rest_framework.fields import (
     FloatField,
     IntegerField,
     ListField,
-    NullBooleanField,
     TimeField,
 )
 from rest_framework.renderers import BaseRenderer
@@ -347,7 +346,7 @@ class XLSXRenderer(BaseRenderer):
             or self.custom_mappings.get(key),
             "cell_style": cell_style,
         }
-        if isinstance(field, BooleanField) or isinstance(field, NullBooleanField):
+        if isinstance(field, BooleanField):
             return XLSXBooleanField(boolean_display=self.boolean_display, **kwargs)
         elif (
             isinstance(field, IntegerField)
