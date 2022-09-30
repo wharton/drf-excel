@@ -38,7 +38,7 @@ class XLSXRenderer(BaseRenderer):
     """
 
     media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    format = "xlsx"
+    format = "xlsx"  # Reserved word, but required by BaseRenderer
     combined_header_dict = {}
     fields_dict = {}
     ignore_headers = []
