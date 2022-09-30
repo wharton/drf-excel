@@ -175,7 +175,7 @@ class XLSXRenderer(BaseRenderer):
             last_col_letter = "G"
             if column_count:
                 last_col_letter = get_column_letter(column_count)
-            self.ws.merge_cells("A1:{}1".format(last_col_letter))
+            self.ws.merge_cells(f"A1:{last_col_letter}1")
 
             cell = self.ws.cell(row=1, column=1, value=header_title)
             set_cell_style(cell, header_style)
@@ -322,7 +322,7 @@ class XLSXRenderer(BaseRenderer):
         if "row_color" in row:
             last_letter = get_column_letter(column_count)
             cell_range = self.ws[
-                "A{}".format(row_count) : "{}{}".format(last_letter, row_count)
+                f"A{row_count}" : f"{last_letter}{row_count}"
             ]
             fill = PatternFill(fill_type="solid", start_color=row["row_color"])
             for r in cell_range:
