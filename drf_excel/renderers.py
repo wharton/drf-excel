@@ -37,7 +37,7 @@ class XLSXRenderer(BaseRenderer):
     Renderer for Excel spreadsheet open data format (xlsx).
     """
 
-    media_type = "application/xlsx"
+    media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     format = "xlsx"
     combined_header_dict = {}
     fields_dict = {}
