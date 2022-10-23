@@ -346,18 +346,11 @@ class XLSXRenderer(BaseRenderer):
         }
         if isinstance(field, BooleanField):
             return XLSXBooleanField(boolean_display=self.boolean_display, **kwargs)
-        elif (
-            isinstance(field, IntegerField)
-            or isinstance(field, FloatField)
-            or isinstance(field, DecimalField)
-        ):
+        elif isinstance(field, (IntegerField, FloatField, DecimalField)):
             return XLSXNumberField(**kwargs)
-        elif (
-            isinstance(field, DateTimeField)
-            or isinstance(field, DateField)
-            or isinstance(field, TimeField)
-        ):
+        elif isinstance(field, (DateTimeField, DateField, TimeField)):
             return XLSXDateField(**kwargs)
+        
         elif (
             isinstance(field, ListField)
             or isinstance(value, Iterable)
