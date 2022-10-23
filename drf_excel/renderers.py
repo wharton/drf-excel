@@ -172,9 +172,7 @@ class XLSXRenderer(BaseRenderer):
 
         # Set the header row
         if use_header:
-            last_col_letter = "G"
-            if column_count:
-                last_col_letter = get_column_letter(column_count)
+            last_col_letter = get_column_letter(column_count) if column_count else "G"
             self.ws.merge_cells(f"A1:{last_col_letter}1")
 
             cell = self.ws.cell(row=1, column=1, value=header_title)
