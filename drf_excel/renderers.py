@@ -215,9 +215,7 @@ class XLSXRenderer(BaseRenderer):
 
     def _check_validation_data(self, data):
         detail_key = "detail"
-        if detail_key in data:
-            return False
-        return True
+        return detail_key not in data
 
     def _serializer_fields(self, serializer, parent_key="", key_sep="."):
         _fields_dict = {}
