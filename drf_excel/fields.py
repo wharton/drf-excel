@@ -1,3 +1,4 @@
+import contextlib
 import datetime
 import json
 from decimal import Decimal
@@ -84,15 +85,15 @@ class XLSXNumberField(XLSXField):
         super().__init__(**kwargs)
 
     def init_value(self, value):
-        try:
+
+        with contextlib.suppress(Exception):
             if isinstance(self.drf_field, IntegerField) and type(value) != int:
                 return int(value)
             elif isinstance(self.drf_field, FloatField) and type(value) != float:
                 return float(value)
             elif isinstance(self.drf_field, DecimalField) and type(value) != Decimal:
                 return Decimal(value)
-        except:
-            pass
+
         return value
 
     def prep_cell(self, cell: Cell):
