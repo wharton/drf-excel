@@ -114,16 +114,14 @@ class XLSXDateField(XLSXField):
         drf_format = getattr(self.drf_field, "format", None)
         # Otherwise, use DRF output format: DATETIME_FORMAT, DATE_FORMAT or TIME_FORMAT
         parse_format = drf_format or getattr(drf_settings, setting_format)
-        # Use the provided iso parse function for the special case ISO_8601
         if parse_format.lower() == ISO_8601:
             return iso_parse_func(value)
-        else:
-            parsed_datetime = datetime.datetime.strptime(value, parse_format)
-            if isinstance(self.drf_field, TimeField):
-                return parsed_datetime.time()
-            elif isinstance(self.drf_field, DateField):
-                return parsed_datetime.date()
-            return parsed_datetime
+        parsed_datetime = datetime.datetime.strptime(value, parse_format)
+        if isinstance(self.drf_field, TimeField):
+            return parsed_datetime.time()
+        elif isinstance(self.drf_field, DateField):
+            return parsed_datetime.date()
+        return parsed_datetime
 
     def init_value(self, value):
         # Set tzinfo to None on datetime and time types since timezones are not supported in Excel
