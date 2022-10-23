@@ -245,10 +245,7 @@ class XLSXRenderer(BaseRenderer):
 
         def _get_label(parent_label, label_sep, obj):
             if getattr(v, "label", None):
-                if parent_label:
-                    return f"{parent_label}{label_sep}{v.label}"
-                else:
-                    return str(v.label)
+                return f"{parent_label}{label_sep}{v.label}" if parent_label else str(v.label)
             else:
                 return False
 
