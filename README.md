@@ -6,7 +6,7 @@
 
 We aim to support Django's [currently supported versions](https://www.djangoproject.com/download/), as well as:
 
-* Django REST Framework >= 3.6
+* Django REST Framework >= 3.14
 * OpenPyXL >= 2.4
 
 ## Installation
