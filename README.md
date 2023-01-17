@@ -180,13 +180,13 @@ def get_header(self):
     }
 ```
 
-Also, you can add `color` field to your serializer and fill body rows.
+Also, you can add the `row_color` field to your serializer and fill body rows.
 
 ```python
 class ExampleSerializer(serializers.Serializer):
-    color = serializers.SerializerMethodField()
+    row_color = serializers.SerializerMethodField()
 
-    def get_color(self, instance):
+    def get_row_color(self, instance):
         color_map = {'w': 'FFFFFFCC', 'a': 'FFFFCCCC'}
         return color_map.get(instance.alarm_level, 'FFFFFFFF')
 ```
