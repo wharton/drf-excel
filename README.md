@@ -269,7 +269,7 @@ DRF_EXCEL_BOOLEAN_DISPLAY = {True: _('Yes'), False: _('No')}
 
 You might find yourself explicitly returning a dict in your API response and would like to use its data to display additional columns. This can be done by passing `xlsx_custom_cols`.
 
-```
+```python
 xlsx_custom_cols = {
     'my_custom_col.val1.title': {
         'label': 'Custom column!',
@@ -301,19 +301,22 @@ def custom_value_formatter(val):
 ```
 
 When no `label` is passed, `drf-excel` will display the key name in the header.
+
 `formatter` is also optional and accepts a function, which will then receive the value it is mapped to (it would receive "Sometimes" and return "Sometimes!!!" in our example).
 
 ### Custom mappings
 
 Assuming you have a field that returns a `dict` instead of a simple `str`, you might not want to return the whole object but only a value of it. Let's say `status` returns `{ value: 1, display: 'Active' }`. To return the `display` value in the `status` column, we can do this:
-```
+
+```python
 xlsx_custom_mappings = {
     'status': 'display'
 }
 ```
-A probably more common case is that you want to change how a value is formatted. `xlsx_custom_mappings` also takes functions as values. Assuming we have a field `description`, and for some strange reason want to reverse the text, we can do this:
 
-```
+A more common case is that you want to change how a value is formatted. `xlsx_custom_mappings` also takes functions as values. Assuming we have a field `description`, and for some strange reason want to reverse the text, we can do this:
+
+```python
 def reverse_text(val):
     return val[::-1]
 
