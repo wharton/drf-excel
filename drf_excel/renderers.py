@@ -1,5 +1,6 @@
 import json
 from collections.abc import Iterable, MutableMapping
+from tempfile import NamedTemporaryFile
 from typing import Dict
 
 from openpyxl import Workbook
@@ -7,7 +8,7 @@ from openpyxl.drawing.image import Image
 from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.views import SheetView
-from openpyxl.writer.excel import save_virtual_workbook
+from openpyxl.writer.excel import save_workbook
 from rest_framework.fields import (
     BooleanField,
     DateField,
@@ -213,7 +214,17 @@ class XLSXRenderer(BaseRenderer):
         self.sheet_view_options = get_attribute(drf_view, "sheet_view_options", dict())
         self.ws.views.sheetView[0] = SheetView(**self.sheet_view_options)
 
-        return save_virtual_workbook(wb)
+        return self._save_virtual_workbook(wb)
+
+    def _save_virtual_workbook(self, wb):
+        tmp = NamedTemporaryFile()
+        save_workbook(wb, tmp.name)
+
+        tmp.seek(0)
+        virtual_workbook = tmp.read()
+        tmp.close()
+
+        return virtual_workbook
 
     def _check_validation_data(self, data):
         detail_key = "detail"
