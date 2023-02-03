@@ -63,7 +63,7 @@ def get_attribute(get_from, prop_name, default=None):
     """
     prop = getattr(get_from, prop_name, None)
     if not prop:
-        prop_func = getattr(get_from, "get_{}".format(prop_name), None)
+        prop_func = getattr(get_from, f"get_{prop_name}", None)
         if prop_func:
             prop = prop_func()
     if prop is None:
@@ -72,7 +72,7 @@ def get_attribute(get_from, prop_name, default=None):
 
 
 def get_setting(key, default=None):
-    return getattr(django_settings, "DRF_EXCEL_" + key, default)
+    return getattr(django_settings, f"DRF_EXCEL_{key}", default)
 
 
 def sanitize_value(value):

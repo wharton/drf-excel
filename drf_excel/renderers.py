@@ -172,9 +172,7 @@ class XLSXRenderer(BaseRenderer):
 
         # Set the header row
         if use_header:
-            last_col_letter = "G"
-            if column_count:
-                last_col_letter = get_column_letter(column_count)
+            last_col_letter = get_column_letter(column_count) if column_count else "G"
             self.ws.merge_cells(f"A1:{last_col_letter}1")
 
             cell = self.ws.cell(row=1, column=1, value=header_title)
@@ -217,9 +215,7 @@ class XLSXRenderer(BaseRenderer):
 
     def _check_validation_data(self, data):
         detail_key = "detail"
-        if detail_key in data:
-            return False
-        return True
+        return detail_key not in data
 
     def _serializer_fields(self, serializer, parent_key="", key_sep="."):
         _fields_dict = {}
@@ -247,10 +243,7 @@ class XLSXRenderer(BaseRenderer):
 
         def _get_label(parent_label, label_sep, obj):
             if getattr(v, "label", None):
-                if parent_label:
-                    return f"{parent_label}{label_sep}{v.label}"
-                else:
-                    return str(v.label)
+                return f"{parent_label}{label_sep}{v.label}" if parent_label else str(v.label)
             else:
                 return False
 
@@ -348,18 +341,11 @@ class XLSXRenderer(BaseRenderer):
         }
         if isinstance(field, BooleanField):
             return XLSXBooleanField(boolean_display=self.boolean_display, **kwargs)
-        elif (
-            isinstance(field, IntegerField)
-            or isinstance(field, FloatField)
-            or isinstance(field, DecimalField)
-        ):
+        elif isinstance(field, (IntegerField, FloatField, DecimalField)):
             return XLSXNumberField(**kwargs)
-        elif (
-            isinstance(field, DateTimeField)
-            or isinstance(field, DateField)
-            or isinstance(field, TimeField)
-        ):
+        elif isinstance(field, (DateTimeField, DateField, TimeField)):
             return XLSXDateField(**kwargs)
+        
         elif (
             isinstance(field, ListField)
             or isinstance(value, Iterable)
