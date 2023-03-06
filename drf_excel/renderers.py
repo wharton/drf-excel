@@ -1,6 +1,6 @@
 import json
 from collections.abc import Iterable, MutableMapping
-from tempfile import NamedTemporaryFile
+from tempfile import TemporaryFile
 from typing import Dict
 
 from openpyxl import Workbook
@@ -215,12 +215,11 @@ class XLSXRenderer(BaseRenderer):
         return self._save_virtual_workbook(wb)
 
     def _save_virtual_workbook(self, wb):
-        tmp = NamedTemporaryFile()
-        save_workbook(wb, tmp.name)
-
-        tmp.seek(0)
-        virtual_workbook = tmp.read()
-        tmp.close()
+        with TemporaryFile() as tmp:
+            save_workbook(wb, tmp)
+            tmp.seek(0)
+            virtual_workbook = tmp.read()
+        
 
         return virtual_workbook
 
