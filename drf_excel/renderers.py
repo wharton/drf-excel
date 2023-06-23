@@ -95,10 +95,8 @@ class XLSXRenderer(BaseRenderer):
         # Make column headers
         column_titles = column_header.get("titles", [])
 
-        # If we have results, then flatten field
-        # names
+        # If we have results, then flatten field names
         if len(results):
-
             # Set `xlsx_use_labels = True` inside the API View to enable labels.
             use_labels = getattr(drf_view, "xlsx_use_labels", False)
 
@@ -109,13 +107,23 @@ class XLSXRenderer(BaseRenderer):
             # I.e.: xlsx_boolean_labels: {True: "Yes", False: "No"}
             self.boolean_display = getattr(drf_view, "xlsx_boolean_labels", None)
 
-            # Set dict named column_data_styles with headers as keys and style as value. i.e.
+            # Set dict named column_data_styles with headers as keys and styles as
+            # values, I.e.:
             # column_data_styles = {
             #     'distance': {
             # 	      'fill': {'fill_type': 'solid', 'start_color': 'FFCCFFCC'},
-            #         'alignment': {'horizontal': 'center', 'vertical': 'center', 'wrapText': True, 'shrink_to_fit': True},
+            #         'alignment': {
+            #             'horizontal': 'center',
+            #             'vertical': 'center',
+            #             'wrapText': True, 'shrink_to_fit': True
+            #         },
             # 	      'border_side': {'border_style': 'thin', 'color': 'FF000000'},
-            # 	      'font': {'name': 'Arial', 'size': 14, 'bold': True, 'color': 'FF000000'},
+            # 	      'font': {
+            #             'name': 'Arial',
+            #             'size': 14,
+            #             'bold': True,
+            #             'color': 'FF000000'
+            #         },
             # 	      'format': '0.00E+00'
             # 	  },
             # }
@@ -128,7 +136,12 @@ class XLSXRenderer(BaseRenderer):
             # show values of a dict in individual cols. Takes key, an optional label
             # and value than can be callable
             # Example:
-            # {"Additional Col": { label: "Something (optional)", formatter: my_function }}
+            # {
+            #     "Additional Col": {
+            #         label: "Something (optional)",
+            #         formatter: my_function
+            #     }
+            # }
             self.custom_cols = getattr(drf_view, "xlsx_custom_cols", dict())
 
             # Map a specific key to a column (I.e. if the field returns a json) or pass
@@ -219,8 +232,7 @@ class XLSXRenderer(BaseRenderer):
         with TemporaryFile() as tmp:
             save_workbook(wb, tmp)
             tmp.seek(0)
-            virtual_workbook = tmp.read()
-        
+            virtual_workbook = tmp.read()        
 
         return virtual_workbook
 
@@ -320,6 +332,7 @@ class XLSXRenderer(BaseRenderer):
         column_count = 0
         row_count += 1
         flattened_row = self._flatten_data(row)
+
         for header_key in self.combined_header_dict:
             if header_key == "row_color":
                 continue
@@ -328,24 +341,29 @@ class XLSXRenderer(BaseRenderer):
             field.cell(self.ws, row_count, column_count) if field else self.ws.cell(
                 row_count, column_count
             )
+
         self.ws.row_dimensions[row_count].height = body.get("height", 40)
+
         if "row_color" in row:
             last_letter = get_column_letter(column_count)
             cell_range = self.ws[
                 f"A{row_count}" : f"{last_letter}{row_count}"
             ]
             fill = PatternFill(fill_type="solid", start_color=row["row_color"])
+
             for r in cell_range:
                 for c in r:
                     c.fill = fill
 
     def _drf_to_xlsx_field(self, key, value) -> XLSXField:
         field = self.fields_dict.get(key)
+
         cell_style = (
             XLSXStyle(self.column_data_styles.get(key))
             if key in self.column_data_styles
             else None
         )
+
         kwargs = {
             "key": key,
             "value": value,
@@ -356,17 +374,18 @@ class XLSXRenderer(BaseRenderer):
             or self.custom_mappings.get(key),
             "cell_style": cell_style,
         }
+
         if isinstance(field, BooleanField):
             return XLSXBooleanField(boolean_display=self.boolean_display, **kwargs)
         elif isinstance(field, (IntegerField, FloatField, DecimalField)):
             return XLSXNumberField(**kwargs)
         elif isinstance(field, (DateTimeField, DateField, TimeField)):
-            return XLSXDateField(**kwargs)
-        
+            return XLSXDateField(**kwargs)        
         elif (
             isinstance(field, ListField)
             or isinstance(value, Iterable)
             and not isinstance(value, str)
         ):
             return XLSXListField(list_sep=self.list_sep, **kwargs)
+
         return XLSXField(**kwargs)
