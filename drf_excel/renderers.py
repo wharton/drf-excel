@@ -3,6 +3,7 @@ from collections.abc import Iterable, MutableMapping
 from tempfile import TemporaryFile
 from typing import Dict
 
+from django.utils.functional import Promise
 from openpyxl import Workbook
 from openpyxl.drawing.image import Image
 from openpyxl.styles import PatternFill
@@ -302,6 +303,8 @@ class XLSXRenderer(BaseRenderer):
         items = []
         for k, v in data.items():
             new_key = f"{parent_key}{key_sep}{k}" if parent_key else k
+            if isinstance(v, Promise):
+                v = v.__class__._proxy____cast(v)
             if isinstance(v, MutableMapping):
                 items.extend(self._flatten_data(v, new_key, key_sep=key_sep).items())
             else:
