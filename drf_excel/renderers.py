@@ -303,13 +303,17 @@ class XLSXRenderer(BaseRenderer):
         items = []
         for k, v in data.items():
             new_key = f"{parent_key}{key_sep}{k}" if parent_key else k
+
+            # Trap Promise instances for when _lazy is used
             if isinstance(v, Promise):
                 v = v.__class__._proxy____cast(v)
+
             if isinstance(v, MutableMapping):
                 items.extend(self._flatten_data(v, new_key, key_sep=key_sep).items())
             else:
                 xlsx_field = self._drf_to_xlsx_field(key=new_key, value=v)
                 items.append((new_key, xlsx_field))
+
         return dict(items)
 
     def _make_body(self, body, row, row_count):
