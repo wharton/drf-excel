@@ -159,7 +159,9 @@ class XLSXListField(XLSXField):
         super().__init__(**kwargs)
 
     def prep_value(self) -> Any:
-        if len(self.value) > 0 and isinstance(self.value[0], Iterable):
+        if self.value is None:
+            return super().prep_value()
+        elif len(self.value) > 0 and isinstance(self.value[0], Iterable):
             # array of array; write as json
             return json.dumps(self.value, ensure_ascii=False)
         else:
