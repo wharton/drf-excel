@@ -2,6 +2,12 @@
 
 `drf-excel` provides an Excel spreadsheet (xlsx) renderer for Django REST Framework. It uses OpenPyXL to create the spreadsheet and provide the file to the end user.
 
+## DjangoCon US 2024: September 22nd - 27th in Durham, NC!
+
+We'll be at [DjangoCon US 2024](https://2024.djangocon.us/), and would love to see you there! The [call for proposals](https://2024.djangocon.us/) is now open.
+
+We hope to see you there!
+
 ## Requirements
 
 We aim to support Django's [currently supported versions](https://www.djangoproject.com/download/), as well as:
