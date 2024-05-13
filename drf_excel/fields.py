@@ -141,7 +141,8 @@ class XLSXDateField(XLSXField):
                     tzinfo=None
                 )
         except:
-            return value
+            pass
+        return value
 
     def prep_cell(self, cell: Cell):
         super().prep_cell(cell)
