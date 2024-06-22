@@ -141,7 +141,8 @@ class XLSXDateField(XLSXField):
                     tzinfo=None
                 )
         except:
-            return value
+            pass
+        return value
 
     def prep_cell(self, cell: Cell):
         super().prep_cell(cell)
@@ -161,7 +162,7 @@ class XLSXListField(XLSXField):
     def prep_value(self) -> Any:
         if self.value is None:
             return super().prep_value()
-        elif len(self.value) > 0 and isinstance(self.value[0], Iterable):
+        elif len(self.value) > 0 and isinstance(self.value[0], Iterable) and not isinstance(self.value[0], str):
             # array of array; write as json
             return json.dumps(self.value, ensure_ascii=False)
         else:
