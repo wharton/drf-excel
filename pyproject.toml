@@ -1,0 +1,63 @@
+[project]
+name = "drf-excel"
+authors = [{name = "Tim Allen", email = "tallen@wharton.upenn.edu"},]
+description = "Django REST Framework renderer for Excel spreadsheet (xlsx) files."
+dynamic = ["version"]
+readme = "README.md"
+requires-python = ">=3.7"
+keywords = ["djangorestframework", "django rest framework", "excel", "spreadsheet", "rest", "restful", "api", "xls", "xlsx", "openpyxl"]
+license = {text = "BSD-3-Clause"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3 :: Only",
+    "Framework :: Django",
+    "Framework :: Django :: 3",
+    "Framework :: Django :: 4",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+]
+dependencies = [
+    "djangorestframework>=3.14",
+    "openpyxl>=2.4",
+]
+
+[project.optional-dependencies]
+dev = [
+  "django-coverage-plugin",
+  "ipython",
+  "ruff",
+  "pytest-coverage",
+  "pytest-django",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/wharton/drf-excel/"
+"Repository" = "https://github.com/wharton/drf-excel/"
+"Documentation" = "https://github.com/wharton/drf-excel/"
+
+[build-system]
+requires = ["setuptools>=67", "setuptools_scm>=7", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "drf_excel/_version.py"
+
+[tool.pytest.ini_options]
+addopts = "--cov --cov-report=html"
+python_files = "tests.py test_*.py"
+DJANGO_SETTINGS_MODULE = "tests.settings"
+
+[tool.coverage.run]
+plugins = ["django_coverage_plugin"]
+include = ["drf_excel/*"]
