@@ -232,7 +232,7 @@ class XLSXRenderer(BaseRenderer):
         with TemporaryFile() as tmp:
             save_workbook(wb, tmp)
             tmp.seek(0)
-            virtual_workbook = tmp.read()        
+            virtual_workbook = tmp.read()
 
         return virtual_workbook
 
@@ -380,7 +380,7 @@ class XLSXRenderer(BaseRenderer):
         elif isinstance(field, (IntegerField, FloatField, DecimalField)):
             return XLSXNumberField(**kwargs)
         elif isinstance(field, (DateTimeField, DateField, TimeField)):
-            return XLSXDateField(**kwargs)        
+            return XLSXDateField(**kwargs)
         elif (
             isinstance(field, ListField)
             or isinstance(value, Iterable)
