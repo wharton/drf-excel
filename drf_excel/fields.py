@@ -135,9 +135,15 @@ class XLSXDateField(XLSXField):
                 return self._parse_date(
                     value, "DATETIME_FORMAT", parse_datetime
                 ).replace(tzinfo=None)
-            elif isinstance(self.drf_field, DateField) and type(value) is not datetime.date:
+            elif (
+                isinstance(self.drf_field, DateField)
+                and type(value) is not datetime.date
+            ):
                 return self._parse_date(value, "DATE_FORMAT", parse_date)
-            elif isinstance(self.drf_field, TimeField) and type(value) is not datetime.time:
+            elif (
+                isinstance(self.drf_field, TimeField)
+                and type(value) is not datetime.time
+            ):
                 return self._parse_date(value, "TIME_FORMAT", parse_time).replace(
                     tzinfo=None
                 )
