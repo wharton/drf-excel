@@ -85,7 +85,6 @@ class XLSXNumberField(XLSXField):
         super().__init__(**kwargs)
 
     def init_value(self, value):
-
         with contextlib.suppress(Exception):
             if isinstance(self.drf_field, IntegerField) and type(value) != int:
                 return int(value)
@@ -160,7 +159,11 @@ class XLSXListField(XLSXField):
         super().__init__(**kwargs)
 
     def prep_value(self) -> Any:
-        if len(self.value) > 0 and isinstance(self.value[0], Iterable) and not isinstance(self.value[0], str):
+        if (
+            len(self.value) > 0
+            and isinstance(self.value[0], Iterable)
+            and not isinstance(self.value[0], str)
+        ):
             # array of array; write as json
             return json.dumps(self.value, ensure_ascii=False)
         else:

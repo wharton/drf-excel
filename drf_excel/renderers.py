@@ -266,7 +266,11 @@ class XLSXRenderer(BaseRenderer):
 
         def _get_label(parent_label, label_sep, obj):
             if getattr(v, "label", None):
-                return f"{parent_label}{label_sep}{v.label}" if parent_label else str(v.label)
+                return (
+                    f"{parent_label}{label_sep}{v.label}"
+                    if parent_label
+                    else str(v.label)
+                )
             else:
                 return False
 
@@ -346,9 +350,7 @@ class XLSXRenderer(BaseRenderer):
 
         if "row_color" in row:
             last_letter = get_column_letter(column_count)
-            cell_range = self.ws[
-                f"A{row_count}" : f"{last_letter}{row_count}"
-            ]
+            cell_range = self.ws[f"A{row_count}" : f"{last_letter}{row_count}"]
             fill = PatternFill(fill_type="solid", start_color=row["row_color"])
 
             for r in cell_range:
