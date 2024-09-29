@@ -141,7 +141,7 @@ class XLSXDateField(XLSXField):
                 return self._parse_date(value, "TIME_FORMAT", parse_time).replace(
                     tzinfo=None
                 )
-        except:
+        except Exception:
             pass
         return value
 
