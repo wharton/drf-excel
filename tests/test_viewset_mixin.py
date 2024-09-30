@@ -6,6 +6,7 @@ from rest_framework.test import APIClient
 
 from tests.testapp.models import ExampleModel
 
+
 @pytest.fixture
 def api_client():
     return APIClient()
@@ -20,8 +21,13 @@ def test_simple_viewset_model(api_client):
     response = api_client.get("/examples/")
 
     assert response.status_code == 200
-    assert response.headers["Content-Type"] == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8"
-    assert response.headers["content-disposition"] == "attachment; filename=my_export.xlsx"
+    assert (
+        response.headers["Content-Type"]
+        == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8"
+    )
+    assert (
+        response.headers["content-disposition"] == "attachment; filename=my_export.xlsx"
+    )
 
     workbook_buffer = io.BytesIO(response.content)
     workbook = load_workbook(workbook_buffer, read_only=True)
