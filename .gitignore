@@ -34,3 +34,4 @@ Desktop.ini
 # Coverage
 htmlcov/
 .coverage
+coverage.xml
