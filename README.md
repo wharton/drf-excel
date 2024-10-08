@@ -1,5 +1,7 @@
 # DRF Excel: Django REST Framework Excel Spreadsheet (xlsx) Renderer
 
+[![codecov](https://codecov.io/gh/wharton/drf-excel/graph/badge.svg?token=EETTI9XRNO)](https://codecov.io/gh/wharton/drf-excel)
+
 `drf-excel` provides an Excel spreadsheet (xlsx) renderer for Django REST Framework. It uses OpenPyXL to create the spreadsheet and provide the file to the end user.
 
 ## Requirements

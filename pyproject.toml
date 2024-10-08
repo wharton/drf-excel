@@ -54,7 +54,7 @@ build-backend = "setuptools.build_meta"
 write_to = "drf_excel/_version.py"
 
 [tool.pytest.ini_options]
-addopts = "--cov --cov-report=html --cov-report=term"
+addopts = "--cov --cov-report=xml --cov-report=term"
 python_files = "tests.py test_*.py"
 DJANGO_SETTINGS_MODULE = "tests.settings"
 
