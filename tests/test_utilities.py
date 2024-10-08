@@ -104,5 +104,13 @@ class TestGetAttribute:
         assert get_attribute(obj, "b") == 1
 
 
-def test_get_setting_not_found():
-    assert get_setting("INTEGER_FORMAT") is None
+class TestGetSetting:
+    def test_not_defined(self):
+        assert get_setting("DUMMY") is None
+
+    def test_not_defined_with_default(self):
+        assert get_setting("DUMMY", "default") == "default"
+
+    def test_defined(self, settings):
+        settings.DRF_EXCEL_DUMMY = "custom-value"
+        assert get_setting("DUMMY") == "custom-value"
