@@ -1,6 +1,8 @@
+from types import SimpleNamespace
+
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Color, Side
 
-from drf_excel.utilities import get_setting, XLSXStyle
+from drf_excel.utilities import get_setting, XLSXStyle, get_attribute
 
 
 class TestXLSXStyle:
@@ -78,6 +80,28 @@ class TestXLSXStyle:
         style = XLSXStyle({"format": "0.00E+00"})
 
         assert style.number_format == "0.00E+00"
+
+
+class TestGetAttribute:
+    def test_existing(self):
+        obj = SimpleNamespace(a=1)
+        assert get_attribute(obj, "a") == 1
+
+    def test_non_existing(self):
+        obj = SimpleNamespace(a=1)
+        assert get_attribute(obj, "b") is None
+
+    def test_non_existing_with_default(self):
+        obj = SimpleNamespace(a=1)
+        assert get_attribute(obj, "b", default="c") == "c"
+
+    def test_from_getter_method(self):
+        class Foo:
+            def get_b(self):
+                return 1
+
+        obj = Foo()
+        assert get_attribute(obj, "b") == 1
 
 
 def test_get_setting_not_found():
