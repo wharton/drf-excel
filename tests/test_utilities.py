@@ -1,8 +1,10 @@
 from types import SimpleNamespace
 
+import pytest
+import datetime as dt
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Color, Side
 
-from drf_excel.utilities import get_setting, XLSXStyle, get_attribute
+from drf_excel.utilities import get_setting, XLSXStyle, get_attribute, sanitize_value
 
 
 class TestXLSXStyle:
@@ -114,3 +116,39 @@ class TestGetSetting:
     def test_defined(self, settings):
         settings.DRF_EXCEL_DUMMY = "custom-value"
         assert get_setting("DUMMY") == "custom-value"
+
+
+@pytest.mark.parametrize(
+    ("value", "expected_output"),
+    [
+        # Regular values without illegal characters
+        (None, None),
+        ("test", "test"),
+        (True, "True"),
+        (False, False),  # Bug?
+        (1, "1"),
+        (dt.date(2020, 1, 1), "2020-01-01"),
+        (dt.datetime(2020, 1, 1, 1, 1, 1), "2020-01-01 01:01:01"),
+        # With illegal characters
+        ("test\000", "test"),
+        ("t\001est", "test"),
+        ("test\005er", "tester"),
+        ("tes\010t", "test"),
+        ("test\013 me", "test me"),
+        ("test\014", "test"),
+        ("test\016", "test"),
+        ("test\020", "test"),
+        ("test\030", "test"),
+        ("test\037", "test"),
+        # Escape if starts with these characters
+        ("=test", "'=test"),
+        ("-example", "'-example"),
+        ("+foo", "'+foo"),
+        ("@bar", "'@bar"),
+        ("\tbaz", "'\tbaz"),
+        ("\nqux", "'\nqux"),
+        ("\rquux", "'\rquux"),
+    ],
+)
+def test_sanitize_value(value, expected_output):
+    assert sanitize_value(value) == expected_output
