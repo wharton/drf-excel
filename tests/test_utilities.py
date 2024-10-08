@@ -2,9 +2,19 @@ from types import SimpleNamespace
 
 import pytest
 import datetime as dt
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Color, Side
 
-from drf_excel.utilities import get_setting, XLSXStyle, get_attribute, sanitize_value
+from openpyxl.cell import Cell
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Color, Side
+from openpyxl.workbook import Workbook
+from openpyxl.worksheet.worksheet import Worksheet
+
+from drf_excel.utilities import (
+    get_setting,
+    XLSXStyle,
+    get_attribute,
+    sanitize_value,
+    set_cell_style,
+)
 
 
 class TestXLSXStyle:
@@ -152,3 +162,37 @@ class TestGetSetting:
 )
 def test_sanitize_value(value, expected_output):
     assert sanitize_value(value) == expected_output
+
+
+class TestSetCellStyle:
+    @pytest.fixture
+    def cell(self):
+        worksheet = Worksheet(Workbook())
+        return Cell(worksheet)
+
+    def test_no_style(self, cell):
+        set_cell_style(cell, None)
+        assert cell.font is not None
+
+    def test_with_styles(self, cell):
+        style = XLSXStyle(
+            {
+                "font": {"name": "Arial"},
+                "fill": {"fill_type": "solid"},
+                "alignment": {"horizontal": "center"},
+                "border_side": {"border_style": "thin"},
+                "format": "0.00",
+            },
+        )
+        set_cell_style(cell, style)
+        assert cell.font.name == "Arial"
+        assert cell.fill.fill_type == "solid"
+        assert cell.alignment.horizontal == "center"
+        assert cell.border.left.border_style == "thin"
+        assert cell.number_format == "0.00"
+
+    def test_with_partial_styles(self, cell):
+        style = XLSXStyle({"font": {"name": "Arial"}})
+        set_cell_style(cell, style)
+        assert cell.font.name == "Arial"
+        assert cell.number_format == "General"
