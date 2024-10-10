@@ -5,7 +5,6 @@ import datetime as dt
 
 from openpyxl.cell import Cell
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Color, Side
-from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 from drf_excel.utilities import (
@@ -166,8 +165,7 @@ def test_sanitize_value(value, expected_output):
 
 class TestSetCellStyle:
     @pytest.fixture
-    def cell(self):
-        worksheet = Worksheet(Workbook())
+    def cell(self, worksheet: Worksheet):
         return Cell(worksheet)
 
     def test_no_style(self, cell):
