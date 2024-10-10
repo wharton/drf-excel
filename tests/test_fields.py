@@ -1,5 +1,6 @@
 from decimal import Decimal
 import datetime as dt
+from types import SimpleNamespace
 
 import pytest
 from openpyxl.cell import Cell
@@ -33,13 +34,53 @@ def style():
 
 class TestXLSXField:
     def test_init(self, style: XLSXStyle):
-        f = XLSXField("foo", "bar", CharField(), style, None, style)
+        f = XLSXField(
+            key="foo",
+            value="bar",
+            field=CharField(),
+            style=style,
+            mapping="",
+            cell_style=style,
+        )
         assert f.key == "foo"
         assert f.original_value == "bar"
         assert f.value == "bar"
 
     def test_cell(self, style: XLSXStyle, worksheet: Worksheet):
-        f = XLSXField("foo", "bar", CharField(), style, None, style)
+        f = XLSXField(
+            key="foo",
+            value="bar",
+            field=CharField(),
+            style=style,
+            mapping="",
+            cell_style=style,
+        )
+        cell = f.cell(worksheet, 1, 1)
+        assert isinstance(cell, Cell)
+        assert cell.value == "bar"
+
+    def test_cell_with_mapping_str(self, style: XLSXStyle, worksheet: Worksheet):
+        f = XLSXField(
+            key="foo",
+            value={"custom": "bar"},
+            field=CharField(),
+            style=style,
+            mapping="custom",
+            cell_style=style,
+        )
+        cell = f.cell(worksheet, 1, 1)
+        assert isinstance(cell, Cell)
+        assert cell.value == "bar"
+
+    def test_cell_with_mapping_callable(self, style: XLSXStyle, worksheet: Worksheet):
+        f = XLSXField(
+            key="foo",
+            value=SimpleNamespace(custom="bar"),
+            field=CharField(),
+            style=style,
+            mapping=lambda v: v.custom,
+            cell_style=style,
+        )
         cell = f.cell(worksheet, 1, 1)
         assert isinstance(cell, Cell)
         assert cell.value == "bar"
