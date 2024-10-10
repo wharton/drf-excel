@@ -12,9 +12,10 @@ from rest_framework.fields import (
     DateTimeField,
     DateField,
     TimeField,
+    ListField,
 )
 
-from drf_excel.fields import XLSXField, XLSXNumberField, XLSXDateField
+from drf_excel.fields import XLSXField, XLSXNumberField, XLSXDateField, XLSXListField
 from drf_excel.utilities import XLSXStyle
 
 
@@ -304,3 +305,50 @@ class TestXLSXDateField:
         assert isinstance(cell, Cell)
         assert cell.value == dt.date(2017, 10, 25)
         assert cell.number_format == "dd/mm/yyyy"
+
+
+class TestXLSXListField:
+    def test_cell_default_separator(self, style: XLSXStyle, worksheet: Worksheet):
+        f = XLSXListField(
+            list_sep=None,
+            key="things",
+            value=["foo", "bar", "baz"],
+            field=ListField(),
+            style=style,
+            mapping=None,
+            cell_style=style,
+        )
+        assert f.original_value == f.value == ["foo", "bar", "baz"]
+        cell = f.cell(worksheet, 1, 1)
+        assert isinstance(cell, Cell)
+        assert cell.value == "foo, bar, baz"
+
+    def test_cell_custom_separator(self, style: XLSXStyle, worksheet: Worksheet):
+        f = XLSXListField(
+            list_sep=";",
+            key="things",
+            value=["john", "doe", "john.doe@example.com"],
+            field=ListField(),
+            style=style,
+            mapping=None,
+            cell_style=style,
+        )
+        assert f.original_value == f.value == ["john", "doe", "john.doe@example.com"]
+        cell = f.cell(worksheet, 1, 1)
+        assert isinstance(cell, Cell)
+        assert cell.value == "john;doe;john.doe@example.com"
+
+    def test_cell_complex_types(self, style: XLSXStyle, worksheet: Worksheet):
+        f = XLSXListField(
+            list_sep=None,
+            key="objs",
+            value=[{"a": 1}, {"b": 2}],
+            field=ListField(),
+            style=style,
+            mapping=None,
+            cell_style=style,
+        )
+        assert f.original_value == f.value == [{"a": 1}, {"b": 2}]
+        cell = f.cell(worksheet, 1, 1)
+        assert isinstance(cell, Cell)
+        assert cell.value == '[{"a": 1}, {"b": 2}]'
