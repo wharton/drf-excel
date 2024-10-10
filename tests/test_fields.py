@@ -108,7 +108,7 @@ class TestXLSXNumberField:
             value=original_value,
             field=IntegerField(),
             style=style,
-            mapping=None,
+            mapping="",
             cell_style=style,
         )
         assert f.key == "age"
@@ -136,7 +136,7 @@ class TestXLSXNumberField:
             value=original_value,
             field=FloatField(),
             style=style,
-            mapping=None,
+            mapping="",
             cell_style=style,
         )
         assert f.key == "temperature"
@@ -168,7 +168,7 @@ class TestXLSXNumberField:
             value=original_value,
             field=DecimalField(max_digits=10, decimal_places=2),
             style=style,
-            mapping=None,
+            mapping="",
             cell_style=style,
         )
         assert f.key == "price"
@@ -181,7 +181,7 @@ class TestXLSXNumberField:
             value=42,
             field=IntegerField(),
             style=style,
-            mapping=None,
+            mapping="",
             cell_style=style,
         )
         cell = f.cell(worksheet, 1, 1)
@@ -195,7 +195,7 @@ class TestXLSXNumberField:
             value=35.5,
             field=FloatField(),
             style=style,
-            mapping=None,
+            mapping="",
             cell_style=style,
         )
         cell = f.cell(worksheet, 1, 1)
@@ -227,7 +227,7 @@ class TestXLSXDateField:
             value=original_value,
             field=DateTimeField(),
             style=style,
-            mapping=None,
+            mapping="",
             cell_style=style,
         )
         assert f.original_value == original_value
@@ -255,7 +255,7 @@ class TestXLSXDateField:
             value=original_value,
             field=DateField(),
             style=style,
-            mapping=None,
+            mapping="",
             cell_style=style,
         )
         assert f.original_value == original_value
@@ -286,7 +286,7 @@ class TestXLSXDateField:
             value=original_value,
             field=TimeField(),
             style=style,
-            mapping=None,
+            mapping="",
             cell_style=style,
         )
         assert f.original_value == original_value
@@ -298,7 +298,7 @@ class TestXLSXDateField:
             value="2019-03-04T13:15:30",
             field=DateTimeField(),
             style=style,
-            mapping=None,
+            mapping="",
             cell_style=style,
         )
         cell = f.cell(worksheet, 1, 1)
@@ -315,7 +315,7 @@ class TestXLSXDateField:
             value="01-04-2015 05:16:09",
             field=DateTimeField(format="%d-%m-%Y %H:%M:%S"),
             style=style,
-            mapping=None,
+            mapping="",
             cell_style=style,
         )
         cell = f.cell(worksheet, 1, 1)
@@ -329,7 +329,7 @@ class TestXLSXDateField:
             value="2018-09-10",
             field=DateField(),
             style=style,
-            mapping=None,
+            mapping="",
             cell_style=style,
         )
         cell = f.cell(worksheet, 1, 1)
@@ -346,7 +346,7 @@ class TestXLSXDateField:
             value="25/10/2017",
             field=DateField(format="%d/%m/%Y"),
             style=style,
-            mapping=None,
+            mapping="",
             cell_style=style,
         )
         cell = f.cell(worksheet, 1, 1)
@@ -363,7 +363,7 @@ class TestXLSXListField:
             value=["foo", "bar", "baz"],
             field=ListField(),
             style=style,
-            mapping=None,
+            mapping="",
             cell_style=style,
         )
         assert f.original_value == f.value == ["foo", "bar", "baz"]
@@ -378,7 +378,7 @@ class TestXLSXListField:
             value=["john", "doe", "john.doe@example.com"],
             field=ListField(),
             style=style,
-            mapping=None,
+            mapping="",
             cell_style=style,
         )
         assert f.original_value == f.value == ["john", "doe", "john.doe@example.com"]
@@ -393,7 +393,7 @@ class TestXLSXListField:
             value=[{"a": 1}, {"b": 2}],
             field=ListField(),
             style=style,
-            mapping=None,
+            mapping="",
             cell_style=style,
         )
         assert f.original_value == f.value == [{"a": 1}, {"b": 2}]
@@ -413,7 +413,7 @@ class TestXLSXBooleanField:
             value=value,
             field=BooleanField(),
             style=style,
-            mapping=None,
+            mapping="",
             cell_style=style,
         )
         cell = f.cell(worksheet, 1, 1)
@@ -440,7 +440,7 @@ class TestXLSXBooleanField:
             value=original_value,
             field=BooleanField(),
             style=style,
-            mapping=None,
+            mapping="",
             cell_style=style,
         )
         cell = f.cell(worksheet, 1, 1)
