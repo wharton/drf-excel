@@ -13,9 +13,16 @@ from rest_framework.fields import (
     DateField,
     TimeField,
     ListField,
+    BooleanField,
 )
 
-from drf_excel.fields import XLSXField, XLSXNumberField, XLSXDateField, XLSXListField
+from drf_excel.fields import (
+    XLSXField,
+    XLSXNumberField,
+    XLSXDateField,
+    XLSXListField,
+    XLSXBooleanField,
+)
 from drf_excel.utilities import XLSXStyle
 
 
@@ -352,3 +359,49 @@ class TestXLSXListField:
         cell = f.cell(worksheet, 1, 1)
         assert isinstance(cell, Cell)
         assert cell.value == '[{"a": 1}, {"b": 2}]'
+
+
+class TestXLSXBooleanField:
+    @pytest.mark.parametrize("value", [True, False])
+    def test_cell_default_display(
+        self, style: XLSXStyle, worksheet: Worksheet, value: bool
+    ):
+        f = XLSXBooleanField(
+            boolean_display={},
+            key="is_active",
+            value=value,
+            field=BooleanField(),
+            style=style,
+            mapping=None,
+            cell_style=style,
+        )
+        cell = f.cell(worksheet, 1, 1)
+        assert isinstance(cell, Cell)
+        assert cell.value == value
+
+    @pytest.mark.parametrize(
+        ("original_value", "cleaned_value"),
+        [
+            (True, "yes"),
+            (False, "no"),
+        ],
+    )
+    def test_cell_custom_display(
+        self,
+        style: XLSXStyle,
+        worksheet: Worksheet,
+        original_value: bool,
+        cleaned_value: str,
+    ):
+        f = XLSXBooleanField(
+            boolean_display={True: "yes", False: "no"},
+            key="is_active",
+            value=original_value,
+            field=BooleanField(),
+            style=style,
+            mapping=None,
+            cell_style=style,
+        )
+        cell = f.cell(worksheet, 1, 1)
+        assert isinstance(cell, Cell)
+        assert cell.value == cleaned_value
