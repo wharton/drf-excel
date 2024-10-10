@@ -85,6 +85,19 @@ class TestXLSXField:
         assert isinstance(cell, Cell)
         assert cell.value == "bar"
 
+    def test_cell_with_invalid_mapping(self, style: XLSXStyle, worksheet: Worksheet):
+        f = XLSXField(
+            key="foo",
+            value="bar",
+            field=CharField(),
+            style=style,
+            mapping=55,
+            cell_style=style,
+        )
+        cell = f.cell(worksheet, 1, 1)
+        assert isinstance(cell, Cell)
+        assert cell.value == "bar"
+
 
 class TestXLSXNumberField:
     @pytest.mark.parametrize(
