@@ -1,10 +1,12 @@
-import io
+import datetime as dt
 
 import pytest
-from openpyxl.reader.excel import load_workbook
 from rest_framework.test import APIClient
+from time_machine import TimeMachineFixture
 
-from tests.testapp.models import ExampleModel
+from tests.testapp.models import ExampleModel, AllFieldsModel, Tag
+
+pytestmark = pytest.mark.django_db
 
 
 @pytest.fixture
@@ -12,8 +14,7 @@ def api_client():
     return APIClient()
 
 
-@pytest.mark.django_db
-def test_simple_viewset_model(api_client):
+def test_simple_viewset_model(api_client, workbook_reader):
     ExampleModel.objects.create(title="test 1", description="This is a test")
     ExampleModel.objects.create(title="test 2", description="Another test")
     ExampleModel.objects.create(title="test 3", description="Testing this out")
@@ -29,11 +30,10 @@ def test_simple_viewset_model(api_client):
         response.headers["content-disposition"] == "attachment; filename=my_export.xlsx"
     )
 
-    workbook_buffer = io.BytesIO(response.content)
-    workbook = load_workbook(workbook_buffer, read_only=True)
+    wb = workbook_reader(response.content)
 
-    assert len(workbook.worksheets) == 1
-    sheet = workbook.worksheets[0]
+    assert len(wb.worksheets) == 1
+    sheet = wb.worksheets[0]
     rows = list(sheet.rows)
     assert len(rows) == 4
     r0, r1, r2, r3 = rows
@@ -53,3 +53,43 @@ def test_simple_viewset_model(api_client):
     assert len(r3) == 2
     assert r3[0].value == "test 3"
     assert r3[1].value == "Testing this out"
+
+
+def test_all_fields_viewset(
+    api_client, time_machine: TimeMachineFixture, workbook_reader
+):
+    time_machine.move_to(dt.datetime(2023, 9, 10, 15, 44, 37))
+    instance = AllFieldsModel.objects.create(title="Hello", age=36, is_active=True)
+    instance.tags.set(
+        [
+            Tag.objects.create(name="test"),
+            Tag.objects.create(name="example"),
+        ]
+    )
+    response = api_client.get("/all-fields/")
+    assert response.status_code == 200
+
+    wb = workbook_reader(response.content)
+    sheet = wb.worksheets[0]
+    rows = list(sheet.rows)
+    assert len(rows) == 2
+    r0, r1 = rows
+
+    assert [col.value for col in r0] == [
+        "title",
+        "created_at",
+        "updated_date",
+        "updated_time",
+        "age",
+        "is_active",
+        "tags",
+    ]
+    assert [col.value for col in r1] == [
+        "Hello",
+        dt.datetime(2023, 9, 10, 15, 44, 37),
+        dt.datetime(2023, 9, 10, 0, 0),
+        dt.time(15, 44, 37),
+        36,
+        True,
+        "test, example",
+    ]
