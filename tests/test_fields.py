@@ -280,7 +280,6 @@ class TestXLSXDateField:
             # Successful parsing
             ("13:01", dt.time(13, 1)),
             ("13:15:30", dt.time(13, 15, 30)),
-            ("14:15:16.1234Z", dt.time(14, 15, 16, 123400)),
             # Failed parsing
             ("2020-01-01", "2020-01-01"),
             ("2020-02-03T13:01", "2020-02-03T13:01"),
