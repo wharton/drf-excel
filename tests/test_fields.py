@@ -354,6 +354,37 @@ class TestXLSXDateField:
         assert cell.value == dt.date(2017, 10, 25)
         assert cell.number_format == "dd/mm/yyyy"
 
+    def test_cell_time_default_format(self, style: XLSXStyle, worksheet: Worksheet):
+        f = XLSXDateField(
+            key="dt",
+            value="09:10:11",
+            field=TimeField(),
+            style=style,
+            mapping="",
+            cell_style=style,
+        )
+        cell = f.cell(worksheet, 1, 1)
+        assert isinstance(cell, Cell)
+        assert cell.value == dt.time(9, 10, 11)
+        assert cell.number_format == "h:mm:ss"
+
+    def test_cell_time_custom_format(
+        self, style: XLSXStyle, worksheet: Worksheet, settings
+    ):
+        settings.DRF_EXCEL_TIME_FORMAT = "hh - mm - ss"
+        f = XLSXDateField(
+            key="dt",
+            value="09h 10m 11s",
+            field=TimeField(format="%Hh %Mm %Ss"),
+            style=style,
+            mapping="",
+            cell_style=style,
+        )
+        cell = f.cell(worksheet, 1, 1)
+        assert isinstance(cell, Cell)
+        assert cell.value == dt.time(9, 10, 11)
+        assert cell.number_format == "hh - mm - ss"
+
 
 class TestXLSXListField:
     def test_cell_default_separator(self, style: XLSXStyle, worksheet: Worksheet):
