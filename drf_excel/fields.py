@@ -167,6 +167,8 @@ class XLSXListField(XLSXField):
         super().__init__(**kwargs)
 
     def prep_value(self) -> Any:
+        if self.value is None:
+            return super().prep_value()
         if (
             len(self.value) > 0
             and isinstance(self.value[0], Iterable)
