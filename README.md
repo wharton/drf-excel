@@ -337,5 +337,6 @@ xlsx_custom_mappings = {
 * [Timothy Allen](https://github.com/FlipperPA) at [The Wharton School](https://github.com/wharton)
 * [Thomas Willems](https://github.com/willtho89)
 * [Mathieu Rampant](https://github.com/rptmat57)
+* [Bruno Alla](https://github.com/browniebroke)
 
 This package is a member of [Django Commons](https://github.com/django-commons/) and adheres to the community's [Code of Conduct](https://github.com/django-commons/membership/blob/main/CODE_OF_CONDUCT.md). This package was created by the staff of [Wharton Research Data Services](https://wrds.wharton.upenn.edu/). We are thrilled that [The Wharton School](https://www.wharton.upenn.edu/) allows us a certain amount of time to contribute to open-source projects. We add features as they are necessary for our projects, and try to keep up with Issues and Pull Requests as best we can. Due to constraints of time (our full time jobs!), Feature Requests without a Pull Request may not be implemented, but we are always open to new ideas and grateful for contributions and our users.
