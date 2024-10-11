@@ -444,6 +444,36 @@ class TestXLSXListField:
         assert isinstance(cell, Cell)
         assert cell.value == '[{"a": 1}, {"b": 2}]'
 
+    def test_cell_with_empty_list(self, style: XLSXStyle, worksheet: Worksheet):
+        f = XLSXListField(
+            list_sep=None,
+            key="objs",
+            value=[],
+            field=ListField(),
+            style=style,
+            mapping="",
+            cell_style=style,
+        )
+        assert f.original_value == f.value == []
+        cell = f.cell(worksheet, 1, 1)
+        assert isinstance(cell, Cell)
+        assert cell.value == ""
+
+    def test_cell_with_null_value(self, style: XLSXStyle, worksheet: Worksheet):
+        f = XLSXListField(
+            list_sep=None,
+            key="objs",
+            value=None,
+            field=ListField(allow_null=True),
+            style=style,
+            mapping="",
+            cell_style=style,
+        )
+        assert f.original_value is f.value is None
+        cell = f.cell(worksheet, 1, 1)
+        assert isinstance(cell, Cell)
+        assert cell.value is None
+
 
 class TestXLSXBooleanField:
     @pytest.mark.parametrize("value", [True, False])
