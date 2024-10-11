@@ -56,11 +56,11 @@ class XLSXRenderer(BaseRenderer):
         """
         Render `data` into XLSX workbook, returning a workbook.
         """
-        if not self._check_validation_data(data):
-            return json.dumps(data)
-
         if data is None:
             return bytes()
+
+        if not self._check_validation_data(data):
+            return json.dumps(data)
 
         wb = Workbook()
         self.ws = wb.active
@@ -232,7 +232,7 @@ class XLSXRenderer(BaseRenderer):
         with TemporaryFile() as tmp:
             save_workbook(wb, tmp)
             tmp.seek(0)
-            virtual_workbook = tmp.read()        
+            virtual_workbook = tmp.read()
 
         return virtual_workbook
 
@@ -266,7 +266,11 @@ class XLSXRenderer(BaseRenderer):
 
         def _get_label(parent_label, label_sep, obj):
             if getattr(v, "label", None):
-                return f"{parent_label}{label_sep}{v.label}" if parent_label else str(v.label)
+                return (
+                    f"{parent_label}{label_sep}{v.label}"
+                    if parent_label
+                    else str(v.label)
+                )
             else:
                 return False
 
@@ -346,9 +350,7 @@ class XLSXRenderer(BaseRenderer):
 
         if "row_color" in row:
             last_letter = get_column_letter(column_count)
-            cell_range = self.ws[
-                f"A{row_count}" : f"{last_letter}{row_count}"
-            ]
+            cell_range = self.ws[f"A{row_count}" : f"{last_letter}{row_count}"]
             fill = PatternFill(fill_type="solid", start_color=row["row_color"])
 
             for r in cell_range:
@@ -380,7 +382,7 @@ class XLSXRenderer(BaseRenderer):
         elif isinstance(field, (IntegerField, FloatField, DecimalField)):
             return XLSXNumberField(**kwargs)
         elif isinstance(field, (DateTimeField, DateField, TimeField)):
-            return XLSXDateField(**kwargs)        
+            return XLSXDateField(**kwargs)
         elif (
             isinstance(field, ListField)
             or isinstance(value, Iterable)

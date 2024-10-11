@@ -1,5 +1,5 @@
 from django.conf import settings as django_settings
-from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
+from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE, Cell
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 
 ESCAPE_CHARS = ("=", "-", "+", "@", "\t", "\r", "\n")
@@ -86,7 +86,7 @@ def sanitize_value(value):
     return value
 
 
-def set_cell_style(cell, style: XLSXStyle):
+def set_cell_style(cell: Cell, style: XLSXStyle):
     # We are not applying the whole style directly, otherwise we cannot override any part of it
     if style:
         # Only set properties that are provided

@@ -85,13 +85,14 @@ class XLSXNumberField(XLSXField):
         super().__init__(**kwargs)
 
     def init_value(self, value):
-
         with contextlib.suppress(Exception):
-            if isinstance(self.drf_field, IntegerField) and type(value) != int:
+            if isinstance(self.drf_field, IntegerField) and type(value) is not int:
                 return int(value)
-            elif isinstance(self.drf_field, FloatField) and type(value) != float:
+            elif isinstance(self.drf_field, FloatField) and type(value) is not float:
                 return float(value)
-            elif isinstance(self.drf_field, DecimalField) and type(value) != Decimal:
+            elif (
+                isinstance(self.drf_field, DecimalField) and type(value) is not Decimal
+            ):
                 return Decimal(value)
 
         return value
@@ -129,18 +130,24 @@ class XLSXDateField(XLSXField):
         try:
             if (
                 isinstance(self.drf_field, DateTimeField)
-                and type(value) != datetime.datetime
+                and type(value) is not datetime.datetime
             ):
                 return self._parse_date(
                     value, "DATETIME_FORMAT", parse_datetime
                 ).replace(tzinfo=None)
-            elif isinstance(self.drf_field, DateField) and type(value) != datetime.date:
+            elif (
+                isinstance(self.drf_field, DateField)
+                and type(value) is not datetime.date
+            ):
                 return self._parse_date(value, "DATE_FORMAT", parse_date)
-            elif isinstance(self.drf_field, TimeField) and type(value) != datetime.time:
+            elif (
+                isinstance(self.drf_field, TimeField)
+                and type(value) is not datetime.time
+            ):
                 return self._parse_date(value, "TIME_FORMAT", parse_time).replace(
                     tzinfo=None
                 )
-        except:
+        except Exception:
             pass
         return value
 
@@ -162,7 +169,11 @@ class XLSXListField(XLSXField):
     def prep_value(self) -> Any:
         if self.value is None:
             return super().prep_value()
-        elif len(self.value) > 0 and isinstance(self.value[0], Iterable) and not isinstance(self.value[0], str):
+        if (
+            len(self.value) > 0
+            and isinstance(self.value[0], Iterable)
+            and not isinstance(self.value[0], str)
+        ):
             # array of array; write as json
             return json.dumps(self.value, ensure_ascii=False)
         else:

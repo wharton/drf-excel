@@ -1,5 +1,7 @@
 # DRF Excel: Django REST Framework Excel Spreadsheet (xlsx) Renderer
 
+[![codecov](https://codecov.io/gh/wharton/drf-excel/graph/badge.svg?token=EETTI9XRNO)](https://codecov.io/gh/wharton/drf-excel)
+
 `drf-excel` provides an Excel spreadsheet (xlsx) renderer for Django REST Framework. It uses OpenPyXL to create the spreadsheet and provide the file to the end user.
 
 ## Requirements
@@ -56,7 +58,7 @@ To upgrade to `drf_excel` 2.0.0 from `drf_renderer_xlsx`, update your import pat
 * `drf_renderer_xlsx.renderers.XLSXRenderer` becomes `drf_excel.renderers.XLSXRenderer`.
 * `xlsx_date_format_mappings` has been removed in favor of `column_data_styles` which provides more flexibility
 
-## Configuring Styles 
+## Configuring Styles
 
 Styles can be added to your worksheet header, column header row, body and column data from view attributes `header`, `column_header`, `body`, `column_data_styles`. Any arguments from [the OpenPyXL package](https://openpyxl.readthedocs.io/en/stable/styles.html) can be used for font, alignment, fill and border_side (border will always be all side of cell).
 
@@ -148,7 +150,7 @@ def get_header(self):
     datetime_format = "%H:%M:%S %d.%m.%Y"
     return {
         'tab_title': 'MyReport', # title of tab/workbook
-        'use_header': True,  # show the header_title 
+        'use_header': True,  # show the header_title
         'header_title': 'Report from {} to {}'.format(
             start_time.strftime(datetime_format),
             end_time.strftime(datetime_format),
@@ -200,7 +202,7 @@ They can be set in the view as a property `sheet_view_options`:
 ```python
 class MyExampleViewSet(serializers.Serializer):
     sheet_view_options = {
-        'rightToLeft': True, 
+        'rightToLeft': True,
         'showGridLines': False
     }
 ```
@@ -209,10 +211,10 @@ or using method `get_sheet_view_options`:
 
 ```python
 class MyExampleViewSet(serializers.Serializer):
-    
+
     def get_sheet_view_options(self):
         return {
-            'rightToLeft': True, 
+            'rightToLeft': True,
             'showGridLines': False
         }
 ```
@@ -220,7 +222,7 @@ class MyExampleViewSet(serializers.Serializer):
 
 ### Use Serializer Field labels as header names
 
-By default, headers will use the same 'names' as they are returned by the API. This can be changed by setting `xlsx_use_labels = True` inside your API View. 
+By default, headers will use the same 'names' as they are returned by the API. This can be changed by setting `xlsx_use_labels = True` inside your API View.
 
 Instead of using the field names, the export will use the labels as they are defined inside your Serializer. A serializer field defined as `title = serializers.CharField(label=_("Some title"))` would return `Some title` instead of `title`, also supporting translations. If no label is set, it will fall back to using `title`.
 
@@ -248,9 +250,9 @@ DRF_EXCEL_DECIMAL_FORMAT = '0.00E+00'
 
 ### Name boolean values
 
-`True` and `False` as values for boolean fields are not always the best representation and don't support translation. 
+`True` and `False` as values for boolean fields are not always the best representation and don't support translation.
 
-This can be controlled with in you API view with `xlsx_boolean_labels`. 
+This can be controlled with in you API view with `xlsx_boolean_labels`.
 
 ```
 xlsx_boolean_labels = {True: _('Yes'), False: _('No')}
@@ -282,7 +284,7 @@ def custom_value_formatter(val):
     return val + '!!!'
 
 ### Example response:
-{ 
+{
     results: [
         {
             title: 'XLSX renderer',
@@ -336,4 +338,4 @@ xlsx_custom_mappings = {
 * [Thomas Willems](https://github.com/willtho89)
 * [Mathieu Rampant](https://github.com/rptmat57)
 
-This package was created by the staff of [Wharton Research Data Services](https://wrds.wharton.upenn.edu/). We are thrilled that [The Wharton School](https://www.wharton.upenn.edu/) allows us a certain amount of time to contribute to open-source projects. We add features as they are necessary for our projects, and try to keep up with Issues and Pull Requests as best we can. Due to constraints of time (our full time jobs!), Feature Requests without a Pull Request may not be implemented, but we are always open to new ideas and grateful for contributions and our users.
+This package is a member of [Django Commons](https://github.com/django-commons/) and adheres to the community's [Code of Conduct](https://github.com/django-commons/membership/blob/main/CODE_OF_CONDUCT.md). This package was created by the staff of [Wharton Research Data Services](https://wrds.wharton.upenn.edu/). We are thrilled that [The Wharton School](https://www.wharton.upenn.edu/) allows us a certain amount of time to contribute to open-source projects. We add features as they are necessary for our projects, and try to keep up with Issues and Pull Requests as best we can. Due to constraints of time (our full time jobs!), Feature Requests without a Pull Request may not be implemented, but we are always open to new ideas and grateful for contributions and our users.
