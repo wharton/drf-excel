@@ -1,5 +1,13 @@
 # DRF Excel: Django REST Framework Excel Spreadsheet (xlsx) Renderer
 
+
+[![PyPI - License](https://img.shields.io/pypi/l/drf-excel)](https://opensource.org/license/BSD-3-Clause)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![PyPI version](https://badge.fury.io/py/drf-excel.svg)](https://pypi.python.org/pypi/drf-excel/)
+[![PyPI python versions](https://img.shields.io/pypi/pyversions/drf-excel.svg)](https://pypi.python.org/pypi/drf-excel/)
+[![PyPI django versions](https://img.shields.io/pypi/djversions/drf-excel.svg)](https://pypi.org/project/drf-excel/)
+[![PyPI status](https://img.shields.io/pypi/status/drf-excel.svg)](https://pypi.python.org/pypi/drf-excel)
+[![CI](https://github.com/wharton/drf-excel/actions/workflows/test.yml/badge.svg)](https://github.com/wharton/drf-excel/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/wharton/drf-excel/graph/badge.svg?token=EETTI9XRNO)](https://codecov.io/gh/wharton/drf-excel)
 
 `drf-excel` provides an Excel spreadsheet (xlsx) renderer for Django REST Framework. It uses OpenPyXL to create the spreadsheet and provide the file to the end user.
