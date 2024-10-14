@@ -54,7 +54,7 @@ class MyExampleViewSet(XLSXFileMixin, ReadOnlyModelViewSet):
     serializer_class = MyExampleSerializer
     renderer_classes = (XLSXRenderer,)
     filename = 'my_export.xlsx'
-    pagination_class = None # if you have custom pagination, you need to set this to None
+    pagination_class = None  # Only required if custom pagination is used
 ```
 
 The `XLSXFileMixin` also provides a `get_filename()` method which can be overridden, if you prefer to provide a filename programmatically instead of the `filename` attribute.
