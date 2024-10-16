@@ -4,7 +4,7 @@ authors = [{name = "Tim Allen", email = "tallen@wharton.upenn.edu"},]
 description = "Django REST Framework renderer for Excel spreadsheet (xlsx) files."
 dynamic = ["version"]
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 keywords = ["djangorestframework", "django rest framework", "excel", "spreadsheet", "rest", "restful", "api", "xls", "xlsx", "openpyxl"]
 license = {text = "BSD-3-Clause"}
 classifiers = [
