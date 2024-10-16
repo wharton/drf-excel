@@ -27,6 +27,6 @@ class XLSXFileMixin:
             and response.accepted_renderer.format == "xlsx"
         ):
             response["content-disposition"] = (
-                f"attachment; filename={escape_uri_path(self.get_filename(request=request, *args, **kwargs))}"
+                f"attachment; filename={escape_uri_path(self.get_filename(request=request, *args, **kwargs))}"  # noqa: B026
             )
         return response
