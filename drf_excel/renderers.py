@@ -57,7 +57,7 @@ class XLSXRenderer(BaseRenderer):
         Render `data` into XLSX workbook, returning a workbook.
         """
         if data is None:
-            return bytes()
+            return b""
 
         if not self._check_validation_data(data):
             return json.dumps(data)

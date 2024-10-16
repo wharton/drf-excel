@@ -1,28 +1,28 @@
-from decimal import Decimal
 import datetime as dt
+from decimal import Decimal
 from types import SimpleNamespace
 
 import pytest
 from openpyxl.cell import Cell
 from openpyxl.worksheet.worksheet import Worksheet
 from rest_framework.fields import (
-    CharField,
-    IntegerField,
-    FloatField,
-    DecimalField,
-    DateTimeField,
-    DateField,
-    TimeField,
-    ListField,
     BooleanField,
+    CharField,
+    DateField,
+    DateTimeField,
+    DecimalField,
+    FloatField,
+    IntegerField,
+    ListField,
+    TimeField,
 )
 
 from drf_excel.fields import (
-    XLSXField,
-    XLSXNumberField,
-    XLSXDateField,
-    XLSXListField,
     XLSXBooleanField,
+    XLSXDateField,
+    XLSXField,
+    XLSXListField,
+    XLSXNumberField,
 )
 from drf_excel.utilities import XLSXStyle
 
