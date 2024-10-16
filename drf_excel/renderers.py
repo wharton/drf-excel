@@ -260,7 +260,7 @@ class XLSXRenderer(BaseRenderer):
         use_labels=False,
     ):
         """
-        Iterate through serializer fields recursively when field is a nested serializer.
+        Iterate through serializer fields recursively when field is a nested serializer. Skip write_only fields.
         """
 
         def _get_label(parent_label, label_sep, obj):
@@ -278,7 +278,7 @@ class XLSXRenderer(BaseRenderer):
         for k, v in _fields.items():
             new_key = f"{parent_key}{key_sep}{k}" if parent_key else k
             # Skip headers we want to ignore
-            if new_key in self.ignore_headers:
+            if new_key in self.ignore_headers or getattr(v, "write_only", False):
                 continue
             # Iterate through fields if field is a serializer. Check for labels and
             # append if `use_labels` is True. Fallback to using keys.
