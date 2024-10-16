@@ -1,9 +1,10 @@
 from rest_framework.viewsets import ReadOnlyModelViewSet
+
 from drf_excel.mixins import XLSXFileMixin
 from drf_excel.renderers import XLSXRenderer
 
-from .models import ExampleModel, AllFieldsModel
-from .serializers import ExampleSerializer, AllFieldsSerializer
+from .models import AllFieldsModel, ExampleModel
+from .serializers import AllFieldsSerializer, ExampleSerializer
 
 
 class ExampleViewSet(XLSXFileMixin, ReadOnlyModelViewSet):

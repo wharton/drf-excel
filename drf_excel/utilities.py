@@ -5,7 +5,7 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 ESCAPE_CHARS = ("=", "-", "+", "@", "\t", "\r", "\n")
 
 
-class XLSXStyle(object):
+class XLSXStyle:
     # Class that holds all parts of a style, but without being an actual NamedStyle
 
     def __init__(self, style_dict=None):
