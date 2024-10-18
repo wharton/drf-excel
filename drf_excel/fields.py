@@ -1,8 +1,9 @@
 import contextlib
 import datetime
 import json
+from collections.abc import Iterable
 from decimal import Decimal
-from typing import Any, Callable, Iterable, Union
+from typing import Any, Callable, Union
 
 from django.utils.dateparse import parse_date, parse_datetime, parse_time
 from openpyxl.cell import Cell
@@ -29,7 +30,7 @@ from rest_framework.settings import api_settings as drf_settings
 from drf_excel.utilities import XLSXStyle, get_setting, sanitize_value, set_cell_style
 
 
-class XLSXField(object):
+class XLSXField:
     sanitize = True
 
     def __init__(

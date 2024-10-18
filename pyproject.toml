@@ -4,7 +4,7 @@ authors = [{name = "Tim Allen", email = "tallen@wharton.upenn.edu"},]
 description = "Django REST Framework renderer for Excel spreadsheet (xlsx) files."
 dynamic = ["version"]
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 keywords = ["djangorestframework", "django rest framework", "excel", "spreadsheet", "rest", "restful", "api", "xls", "xlsx", "openpyxl"]
 license = {text = "BSD-3-Clause"}
 classifiers = [
@@ -15,11 +15,11 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3 :: Only",
     "Framework :: Django",
     "Framework :: Django :: 4.2",
@@ -62,3 +62,13 @@ DJANGO_SETTINGS_MODULE = "tests.settings"
 [tool.coverage.run]
 plugins = ["django_coverage_plugin"]
 include = ["drf_excel/*"]
+
+[tool.ruff]
+target-version = "py39"
+
+[tool.ruff.lint]
+extend-select = [
+  "B",  # flake8-bugbear
+  "UP", # pyupgrade
+  "I",  # isort
+]

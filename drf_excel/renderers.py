@@ -1,7 +1,6 @@
 import json
 from collections.abc import Iterable, MutableMapping
 from tempfile import TemporaryFile
-from typing import Dict
 
 from django.utils.functional import Promise
 from openpyxl import Workbook
@@ -57,7 +56,7 @@ class XLSXRenderer(BaseRenderer):
         Render `data` into XLSX workbook, returning a workbook.
         """
         if data is None:
-            return bytes()
+            return b""
 
         if not self._check_validation_data(data):
             return json.dumps(data)
@@ -315,7 +314,7 @@ class XLSXRenderer(BaseRenderer):
 
         return _header_dict
 
-    def _flatten_data(self, data, parent_key="", key_sep=".") -> Dict[str, XLSXField]:
+    def _flatten_data(self, data, parent_key="", key_sep=".") -> dict[str, XLSXField]:
         items = []
         for k, v in data.items():
             new_key = f"{parent_key}{key_sep}{k}" if parent_key else k

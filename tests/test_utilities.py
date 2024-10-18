@@ -1,16 +1,15 @@
+import datetime as dt
 from types import SimpleNamespace
 
 import pytest
-import datetime as dt
-
 from openpyxl.cell import Cell
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Color, Side
+from openpyxl.styles import Alignment, Border, Color, Font, PatternFill, Side
 from openpyxl.worksheet.worksheet import Worksheet
 
 from drf_excel.utilities import (
-    get_setting,
     XLSXStyle,
     get_attribute,
+    get_setting,
     sanitize_value,
     set_cell_style,
 )

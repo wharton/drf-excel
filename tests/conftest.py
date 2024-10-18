@@ -1,5 +1,5 @@
 import io
-from typing import Union, Callable
+from typing import Callable, Union
 
 import pytest
 from openpyxl.reader.excel import load_workbook
