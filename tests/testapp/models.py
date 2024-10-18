@@ -30,3 +30,11 @@ class AllFieldsModel(models.Model):
 
     def get_tag_names(self):
         return [tag.name for tag in self.tags.all()]
+
+
+class SecretFieldModel(models.Model):
+    title = models.CharField(max_length=100)
+    secret = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.title

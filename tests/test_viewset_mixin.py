@@ -4,7 +4,7 @@ import pytest
 from rest_framework.test import APIClient
 from time_machine import TimeMachineFixture
 
-from tests.testapp.models import AllFieldsModel, ExampleModel, Tag
+from tests.testapp.models import AllFieldsModel, ExampleModel, SecretFieldModel, Tag
 
 pytestmark = pytest.mark.django_db
 
@@ -93,3 +93,20 @@ def test_all_fields_viewset(
         True,
         "test, example",
     ]
+
+
+def test_secret_field_viewset(api_client, workbook_reader):
+    SecretFieldModel.objects.create(title="foo", secret="bar")
+
+    response = api_client.get("/secret-field/")
+    assert response.status_code == 200
+
+    wb = workbook_reader(response.content)
+    sheet = wb.worksheets[0]
+    rows = list(sheet.rows)
+    assert len(rows) == 2
+    header, data = rows
+
+    # Check that the secret field is not included in the header or data
+    assert [col.value for col in header] == ["title"]
+    assert [col.value for col in data] == ["foo"]
