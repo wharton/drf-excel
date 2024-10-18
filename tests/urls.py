@@ -1,6 +1,6 @@
 from rest_framework import routers
 
-from .testapp.views import ExampleViewSet, AllFieldsViewSet, SecretFieldViewSet
+from .testapp.views import AllFieldsViewSet, ExampleViewSet, SecretFieldViewSet
 
 router = routers.SimpleRouter()
 router.register(r"examples", ExampleViewSet)

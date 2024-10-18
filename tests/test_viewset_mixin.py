@@ -4,7 +4,7 @@ import pytest
 from rest_framework.test import APIClient
 from time_machine import TimeMachineFixture
 
-from tests.testapp.models import ExampleModel, AllFieldsModel, Tag, SecretFieldModel
+from tests.testapp.models import AllFieldsModel, ExampleModel, SecretFieldModel, Tag
 
 pytestmark = pytest.mark.django_db
 

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import ExampleModel, AllFieldsModel, SecretFieldModel
+from .models import AllFieldsModel, ExampleModel, SecretFieldModel
 
 
 class ExampleSerializer(serializers.ModelSerializer):
@@ -24,6 +24,7 @@ class AllFieldsSerializer(serializers.ModelSerializer):
             "tags",
         )
 
+
 class SecretFieldSerializer(serializers.ModelSerializer):
     secret_external = serializers.CharField(write_only=True)
 
@@ -31,6 +32,4 @@ class SecretFieldSerializer(serializers.ModelSerializer):
         model = SecretFieldModel
         fields = ("title", "secret", "secret_external")
 
-        extra_kwargs = {
-            "secret": {"write_only": True}
-        }
+        extra_kwargs = {"secret": {"write_only": True}}
